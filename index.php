@@ -109,21 +109,34 @@ include 'includes/header.php';
             <div style="width: 80px; height: 4px; background: var(--accent-color); margin: 2rem auto;"></div>
         </div>
 
+        <!-- Category Navigation -->
+        <div class="category-nav" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 4rem;">
+            <?php
+            $cat_result_nav = $conn->query("SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category");
+            if ($cat_result_nav->num_rows > 0) {
+                while($nav_row = $cat_result_nav->fetch_assoc()) {
+                    $cat_name = $nav_row['category'];
+                    echo '<a href="#' . strtolower(str_replace(' ', '-', $cat_name)) . '" class="btn-outline" style="padding: 0.6rem 1.5rem; font-size: 0.85rem; border-radius: 50px;">' . htmlspecialchars($cat_name) . '</a>';
+                }
+            }
+            ?>
+        </div>
+
         <?php
-        // Get unique categories
         $cat_sql = "SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category";
         $cat_result = $conn->query($cat_sql);
 
         if ($cat_result->num_rows > 0) {
             while($cat_row = $cat_result->fetch_assoc()) {
                 $category = $cat_row['category'];
+                $cat_id = strtolower(str_replace(' ', '-', $category));
                 ?>
-                <div class="category-header" style="margin-top: 4rem;">
+                <div id="<?php echo $cat_id; ?>" class="category-header" style="margin-top: 6rem;">
                     <h3 class="category-title"><?php echo htmlspecialchars($category); ?></h3>
-                    <div class="category-line" style="background: linear-gradient(to right, var(--accent-color), transparent);"></div>
+                    <div class="category-line"></div>
                 </div>
                 
-                <div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 3rem;">
+                <div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 3rem; align-items: stretch;">
                     <?php
                     $sql = "SELECT * FROM products WHERE is_deleted = 0 AND category = '" . $conn->real_escape_string($category) . "' ORDER BY created_at DESC";
                     $result = $conn->query($sql);
@@ -132,18 +145,18 @@ include 'includes/header.php';
                         while($row = $result->fetch_assoc()) {
                             ?>
                             <div class="product-card-premium">
-                                <a href="product_details.php?id=<?php echo $row['id']; ?>" class="product-link">
+                                <a href="product_details.php?id=<?php echo $row['id']; ?>" class="product-link" style="display: flex; flex-direction: column; height: 100%;">
                                     <div class="premium-img-container">
                                         <img src="uploads/<?php echo htmlspecialchars($row['image']); ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
                                     </div>
-                                    <div class="product-info" style="padding: 0.5rem 0;">
-                                        <h3 class="product-title" style="font-size: 1.4rem; color: var(--primary-color);"><?php echo htmlspecialchars($row['name']); ?></h3>
+                                    <div class="product-info" style="padding: 0.5rem 0; flex: 1; display: flex; flex-direction: column;">
+                                        <h3 class="product-title" style="font-size: 1.4rem; color: var(--primary-color); margin-bottom: 0.5rem; min-height: 3.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($row['name']); ?></h3>
                                         
                                         <?php
                                         $rating_sql = "SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = " . $row['id'];
                                         $rating_res = $conn->query($rating_sql);
                                         $rating_row = $rating_res->fetch_assoc();
-                                        $avg = round($rating_row['avg_rating'], 1);
+                                        $avg = round($rating_row['avg_rating'] ?? 0, 1);
                                         ?>
                                         <div class="rating-stars" style="color: #f39c12; margin: 0.5rem 0;">
                                             <?php
@@ -154,10 +167,10 @@ include 'includes/header.php';
                                             <span style="color: #999; font-size: 0.8rem; margin-left: 5px;">(<?php echo number_format($avg, 1); ?>)</span>
                                         </div>
 
-                                        <p class="product-desc" style="margin-bottom: 1.5rem; color: #666; font-size: 0.95rem;">
-                                            <?php echo htmlspecialchars(substr($row['description'], 0, 80)) . '...'; ?>
+                                        <p class="product-desc" style="margin-bottom: 2rem; color: #666; font-size: 0.95rem; flex: 1;">
+                                            <?php echo htmlspecialchars(substr($row['description'], 0, 100)) . '...'; ?>
                                         </p>
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
                                             <span class="product-price" style="margin: 0; font-size: 1.5rem; color: var(--primary-color);">LKR <?php echo number_format($row['price'], 2); ?></span>
                                             <form action="cart.php" method="POST">
                                                 <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">

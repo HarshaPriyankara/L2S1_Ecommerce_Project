@@ -93,7 +93,17 @@ if (isset($_POST['submit'])) {
             <select name="category" class="form-control" required>
                 <option value="Soaps">Soaps</option>
                 <option value="Capsules">Capsules</option>
-                <option value="Oils">Oils</option>
+                <option value="Oils & Thailas">Oils & Thailas</option>
+                <option value="Herbal Tea & Kwath">Herbal Tea & Kwath</option>
+                <option value="Arishta & Syrups">Arishta & Syrups</option>
+                <option value="Powders & Churnas">Powders & Churnas</option>
+                <option value="Creams & Balms">Creams & Balms</option>
+                <option value="Tablets & Vati">Tablets & Vati</option>
+                <option value="Leheyas & Pastes">Leheyas & Pastes</option>
+                <option value="Hair & Skin Care">Hair & Skin Care</option>
+                <option value="Essential Oils">Essential Oils</option>
+                <option value="Health Supplements">Health Supplements</option>
+                <option value="Wellness Kits">Wellness Kits</option>
                 <option value="Other">Other</option>
             </select>
         </div>

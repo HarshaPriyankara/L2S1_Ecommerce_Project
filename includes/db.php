@@ -3,10 +3,11 @@ $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ayurveda_db";
+$port = 3308;
 
 
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname,$port);
 
 
 if ($conn->connect_error) {

@@ -313,6 +313,30 @@ header {
     margin-right: auto;
 }
 
+/* Category Headers */
+.category-header {
+    margin-bottom: 3rem;
+    position: relative;
+    padding-left: 1.5rem;
+    border-left: 4px solid var(--accent-color);
+}
+
+.category-title {
+    font-size: 2rem;
+    color: var(--primary-dark);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.category-line {
+    height: 2px;
+    width: 100px;
+    background: var(--accent-color);
+    border-radius: 2px;
+}
+
 /* Philosophy Section */
 .philosophy-section {
     padding: 10rem 0;
@@ -366,11 +390,15 @@ header {
     box-shadow: var(--shadow-premium);
     transition: var(--transition);
     border: 1px solid rgba(27, 60, 45, 0.05);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-card-premium:hover {
     transform: translateY(-15px) scale(1.02);
     box-shadow: var(--shadow-float);
+    border-color: var(--accent-color);
 }
 
 .premium-img-container {
