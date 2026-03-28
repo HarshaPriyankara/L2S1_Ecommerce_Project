@@ -43,6 +43,41 @@ $products = [
         'description' => 'Gentle cleansing shampoo made from pure Neem and Amla extracts. Promotes hair growth, prevents dandruff, and maintains scalp health naturally.',
         'price' => 1450.00,
         'image' => 'sample_shampoo.png'
+    ],
+    [
+        'name' => 'Sandalwood & Turmeric Face Scrub',
+        'category' => 'Hair & Skin Care',
+        'description' => 'Gentle exfoliating face scrub made from pure sandalwood powder and native Sri Lankan turmeric. Clears blemishes and deeply nourishes skin.',
+        'price' => 1650.00,
+        'image' => 'face_scrub.png'
+    ],
+    [
+        'name' => 'Ayurvedic Herbal Pain Relief Balm',
+        'category' => 'Oils & Thailas',
+        'description' => 'Famous Sri Lankan herbal balm for soothing head colds, muscular aches, and joint pains. Made from eucalyptus, cinnamon, and citronella oils.',
+        'price' => 450.00,
+        'image' => 'balm.png'
+    ],
+    [
+        'name' => 'Polpala Herbal Wellness Tea',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'Natural diuretic herbal tea from pure Polpala. Helps prevent kidney stones and promotes a healthy urinary tract system.',
+        'price' => 850.00,
+        'image' => 'herbal_tea.png'
+    ],
+    [
+        'name' => 'Brahmi Brain & Memory Tonic',
+        'category' => 'Leheyas & Pastes',
+        'description' => 'Traditional Ayurvedic brain tonic prepared with Brahmi and ghee to significantly enhance memory, mental focus, and clarity.',
+        'price' => 2100.00,
+        'image' => 'brain_tonic.png'
+    ],
+    [
+        'name' => 'Samahan 14 Herbs Remedy Pack',
+        'category' => 'Powders & Churnas',
+        'description' => 'A traditional and authentic herbal concoction of 14 herbs that gives fast relief from cold, cough, and fever symptoms. Easy to prepare instantly.',
+        'price' => 650.00,
+        'image' => 'remedy_pack.png'
     ]
 ];
 
