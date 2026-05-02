@@ -78,6 +78,27 @@ $products = [
         'description' => 'A traditional and authentic herbal concoction of 14 herbs that gives fast relief from cold, cough, and fever symptoms. Easy to prepare instantly.',
         'price' => 650.00,
         'image' => 'remedy_pack.png'
+    ],
+    [
+        'name' => 'Turmeric & Sandalwood Bath Soap',
+        'category' => 'Soaps',
+        'description' => 'A natural Ayurvedic bath soap crafted with turmeric and sandalwood. Perfect for glowing and healthy skin.',
+        'price' => 350.00,
+        'image' => 'turmeric_soap.png'
+    ],
+    [
+        'name' => 'Kumkumadi Tailam Face Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'An ancient Ayurvedic recipe for skin lightening, anti-aging and glowing skin. Enriched with pure saffron.',
+        'price' => 2500.00,
+        'image' => 'kumkumadi.png'
+    ],
+    [
+        'name' => 'Aloe Vera Cooling Gel',
+        'category' => 'Creams & Balms',
+        'description' => 'Multipurpose clear aloe vera gel that deeply hydrates, cools, and soothes the skin and scalp.',
+        'price' => 800.00,
+        'image' => 'aloe_gel.png'
     ]
 ];
 

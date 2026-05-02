@@ -1,0 +1,1 @@
+<?php $conn = new mysqli("localhost", "root", "", "ayurveda_db", 3306); if ($conn->connect_error) echo "3306 Error: " . $conn->connect_error; else { echo "3306 Success\n"; $res = $conn->query("SELECT COUNT(*) FROM products"); if($res) { $row = $res->fetch_row(); echo "Products count: " . $row[0]; } else echo "Table error: " . $conn->error; } ?>
