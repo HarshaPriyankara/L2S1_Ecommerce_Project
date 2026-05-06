@@ -127,6 +127,76 @@ $products = [
         'description' => 'A traditional Ayurvedic massage oil designed to deeply nourish muscles and joints, improving flexibility and easing stiffness.',
         'price' => 2200.00,
         'image' => 'massage_oil.png'
+    ],
+    [
+        'name' => 'Gotu Kola Hair Oil',
+        'category' => 'Hair & Skin Care',
+        'description' => 'A premium green Gotu Kola Ayurvedic hair oil. Nourishes the scalp, promotes hair growth, and reduces hair fall.',
+        'price' => 1100.00,
+        'image' => 'gotukola_oil.png'
+    ],
+    [
+        'name' => 'Venivel & Turmeric Face Wash',
+        'category' => 'Hair & Skin Care',
+        'description' => 'A golden Venivel and Turmeric face wash. Deeply cleanses and brightens the skin while fighting acne-causing bacteria naturally.',
+        'price' => 1350.00,
+        'image' => 'venivel_facewash.png'
+    ],
+    [
+        'name' => 'Navaratna Massage Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'A luxurious red Ayurvedic massage oil infused with 9 precious herbs. Relieves stress, fatigue, and body aches.',
+        'price' => 2400.00,
+        'image' => 'navaratna_oil.png'
+    ],
+    [
+        'name' => 'Link Samahan Spicy Balm',
+        'category' => 'Creams & Balms',
+        'description' => 'A traditional herbal pain relief balm. Highly effective for fast relief from headaches, colds, and muscular pains.',
+        'price' => 350.00,
+        'image' => 'samahan_balm.png'
+    ],
+    [
+        'name' => 'Coriander & Ginger Tea',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'Authentic Ayurvedic coriander and ginger herbal tea. Soothes the throat, improves digestion, and boosts natural immunity.',
+        'price' => 850.00,
+        'image' => 'coriander_tea.png'
+    ],
+    [
+        'name' => 'Triphala Digestive Tablets',
+        'category' => 'Capsules',
+        'description' => 'Traditional Ayurvedic Triphala tablets. A gentle daily detox that promotes healthy digestion and regular bowel movements.',
+        'price' => 1600.00,
+        'image' => 'triphala_tabs.png'
+    ],
+    [
+        'name' => 'Kohomba Neem Herbal Soap',
+        'category' => 'Soaps',
+        'description' => 'A rustic handmade Kohomba (Neem) herbal soap. Contains powerful antibacterial properties for clear, healthy skin.',
+        'price' => 250.00,
+        'image' => 'kohomba_soap.png'
+    ],
+    [
+        'name' => 'Dashamoola Arishta',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'A traditional liquid herbal tonic made from 10 potent roots. Restores energy, reduces inflammation, and balances Vata dosha.',
+        'price' => 1950.00,
+        'image' => 'dashamoola.png'
+    ],
+    [
+        'name' => 'Suwadharani Immunity Drink',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'A powerful Ayurvedic immunity powder drink made from traditional Sri Lankan herbs to protect against viral infections.',
+        'price' => 950.00,
+        'image' => 'suwadharani.png'
+    ],
+    [
+        'name' => 'Kasthuri Kaha Night Cream',
+        'category' => 'Creams & Balms',
+        'description' => 'A luxurious Kasthuri Kaha (Wild Turmeric) night cream. Rejuvenates the skin overnight and enhances natural radiance.',
+        'price' => 2100.00,
+        'image' => 'kasthuri_cream.png'
     ]
 ];
 
