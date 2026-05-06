@@ -99,6 +99,34 @@ $products = [
         'description' => 'Multipurpose clear aloe vera gel that deeply hydrates, cools, and soothes the skin and scalp.',
         'price' => 800.00,
         'image' => 'aloe_gel.png'
+    ],
+    [
+        'name' => 'Amalaki Immune Support',
+        'category' => 'Capsules',
+        'description' => 'Premium organic Amalaki (Amla) Ayurvedic capsules. A powerful natural antioxidant that supports immunity, digestion, and skin health.',
+        'price' => 1800.00,
+        'image' => 'amalaki_caps.png'
+    ],
+    [
+        'name' => 'Siddhalepa Herbal Balm',
+        'category' => 'Creams & Balms',
+        'description' => 'Traditional Ayurvedic herbal pain relief balm. Provides instant relief from headaches, joint pains, and cold symptoms.',
+        'price' => 550.00,
+        'image' => 'herbal_balm.png'
+    ],
+    [
+        'name' => 'Jeevani Energy Drink Powder',
+        'category' => 'Powders & Churnas',
+        'description' => 'Ayurvedic herbal energy powder to revitalize your body and mind. Boosts stamina and reduces fatigue naturally.',
+        'price' => 1250.00,
+        'image' => 'energy_powder.png'
+    ],
+    [
+        'name' => 'Mahanarayan Oil Extra',
+        'category' => 'Oils & Thailas',
+        'description' => 'A traditional Ayurvedic massage oil designed to deeply nourish muscles and joints, improving flexibility and easing stiffness.',
+        'price' => 2200.00,
+        'image' => 'massage_oil.png'
     ]
 ];
 
