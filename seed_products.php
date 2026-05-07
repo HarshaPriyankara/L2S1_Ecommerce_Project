@@ -337,6 +337,27 @@ $products = [
         'description' => 'Luxurious green Brahmi head massage oil. Calms the mind, induces deep sleep, and nourishes the scalp.',
         'price' => 2100.00,
         'image' => 'brahmi_massage_oil.png'
+    ],
+    [
+        'name' => 'Haritaki Extract Tablets',
+        'category' => 'Capsules',
+        'description' => 'Premium Haritaki extract tablets. A potent Ayurvedic rejuvenator that supports digestion, detoxifies the body, and promotes longevity.',
+        'price' => 1750.00,
+        'image' => 'haritaki_tablets.png'
+    ],
+    [
+        'name' => 'Pippali Long Pepper Powder',
+        'category' => 'Powders & Churnas',
+        'description' => 'Authentic Pippali (Long Pepper) powder. Enhances metabolism, improves respiratory health, and aids in the absorption of nutrients.',
+        'price' => 1100.00,
+        'image' => 'pippali_powder.png'
+    ],
+    [
+        'name' => 'Pure Shilajit Resin',
+        'category' => 'Leheyas & Pastes',
+        'description' => 'Premium pure Shilajit resin sourced from high altitudes. A powerful natural supplement that boosts energy, stamina, and overall vitality.',
+        'price' => 4500.00,
+        'image' => 'shilajit_resin.png'
     ]
 ];
 
