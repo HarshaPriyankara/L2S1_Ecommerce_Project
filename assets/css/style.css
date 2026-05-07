@@ -48,7 +48,7 @@ h4,
 h5,
 h6,
 .logo {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Outfit', 'Noto Sans Sinhala', sans-serif;
 }
 
 body {
@@ -92,10 +92,35 @@ header {
     font-size: 1.8rem;
     font-weight: 800;
     color: var(--primary-color);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.8rem;
-    letter-spacing: -1px;
+    gap: 0.45rem;
+    letter-spacing: 0;
+    line-height: 1;
+}
+
+.brand-name {
+    font-family: 'Noto Sans Sinhala', 'Outfit', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--primary-color);
+    text-shadow: 0 1px 0 rgba(212, 175, 55, 0.25);
+}
+
+footer .brand-name {
+    color: var(--white);
+}
+
+.brand-logo {
+    display: block;
+    width: 24px !important;
+    height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 auto;
 }
 
 .logo i {

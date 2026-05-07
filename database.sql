@@ -65,4 +65,4 @@ CREATE TABLE IF NOT EXISTS reviews (
 -- Insert a default admin user (password: admin123)
 -- Hash generated using password_hash('admin123', PASSWORD_DEFAULT)
 INSERT INTO users (name, email, password, role) VALUES 
-('Admin User', 'admin@ayurveda.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+('Admin User', 'admin@ayurveda.com', '$2y$10$Bl7Ells8BVPCI2ZAzsawJ.P1lkTZe6XA.FOqgHXHGWaL/mLZmYLZ6', 'admin');

@@ -1,0 +1,15 @@
+# Local database credentials and machine-specific settings
+includes/db.local.php
+.env
+
+# Local debug scripts
+test_db*.php
+
+# XAMPP / OS noise
+*.log
+Thumbs.db
+.DS_Store
+
+# New product uploads from local machines
+uploads/*
+!uploads/.gitkeep
