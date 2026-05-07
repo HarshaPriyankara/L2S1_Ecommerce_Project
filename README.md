@@ -38,3 +38,4 @@
 - If images don't upload, ensure the `uploads` folder exists and has write permissions.
 - If the database does not connect, check `includes/db.local.php` and confirm your MySQL port in the XAMPP control panel.
 - `Access denied for user 'root'@'localhost' (using password: NO)` means your MySQL root account needs a password. Add it to `includes/db.local.php`.
+- `No connection could be made because the target machine actively refused it` usually means MySQL is not running or the port is wrong. Start MySQL in XAMPP and check whether it is using `3306` or `3308`.
