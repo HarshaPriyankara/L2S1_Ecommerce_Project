@@ -189,6 +189,13 @@ include 'includes/header.php';
                 </div>
                 <?php
             }
+        } else {
+            ?>
+            <div style="text-align: center; padding: 4rem 2rem; background: var(--primary-light); border-radius: var(--radius-md);">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">No products found</h3>
+                <p style="color: var(--text-light);">Import <code>database.sql</code> again or run <code>seed_products.php</code> once to add the sample items.</p>
+            </div>
+            <?php
         }
         ?>
     </div>

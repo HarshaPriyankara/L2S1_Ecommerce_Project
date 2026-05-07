@@ -12,7 +12,8 @@
 2. **Database Setup**:
    - Open **phpMyAdmin** (usually `http://localhost/phpmyadmin`).
    - Create a new database named `ayurveda_db` (or just import the file, it will create it).
-   - Import the `database.sql` file located in this folder.
+   - Import the `database.sql` file located in this folder. This creates the tables, admin account, and sample products.
+   - If the products are still empty, open `http://localhost/L2S1_Ecommerce_Project/seed_products.php` once.
 
 3. **Database Connection**:
    - By default, the app connects to MySQL at `127.0.0.1:3306` with user `root`, empty password, and database `ayurveda_db`.
