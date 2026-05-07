@@ -57,4 +57,15 @@ if ($conn->connect_error) {
 }
 
 $conn->set_charset('utf8mb4');
+
+function product_image_path($filename) {
+    $filename = basename((string) $filename);
+    $path = __DIR__ . '/../uploads/' . $filename;
+
+    if ($filename !== '' && is_file($path)) {
+        return 'uploads/' . rawurlencode($filename);
+    }
+
+    return 'assets/images/divisarana-logo-small.png';
+}
 ?>

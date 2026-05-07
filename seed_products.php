@@ -343,21 +343,21 @@ $products = [
         'category' => 'Capsules',
         'description' => 'Premium Haritaki extract tablets. A potent Ayurvedic rejuvenator that supports digestion, detoxifies the body, and promotes longevity.',
         'price' => 1750.00,
-        'image' => 'haritaki_tablets.png'
+        'image' => 'triphala_tabs.png'
     ],
     [
         'name' => 'Pippali Long Pepper Powder',
         'category' => 'Powders & Churnas',
         'description' => 'Authentic Pippali (Long Pepper) powder. Enhances metabolism, improves respiratory health, and aids in the absorption of nutrients.',
         'price' => 1100.00,
-        'image' => 'pippali_powder.png'
+        'image' => 'musta_churna.png'
     ],
     [
         'name' => 'Pure Shilajit Resin',
         'category' => 'Leheyas & Pastes',
         'description' => 'Premium pure Shilajit resin sourced from high altitudes. A powerful natural supplement that boosts energy, stamina, and overall vitality.',
         'price' => 4500.00,
-        'image' => 'shilajit_resin.png'
+        'image' => 'sample_paste.png'
     ]
 ];
 

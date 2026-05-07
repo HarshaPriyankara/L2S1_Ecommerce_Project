@@ -82,7 +82,7 @@ if (isset($_POST['update_cart'])) {
                                 <tr>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 1rem;">
-                                            <img src="uploads/<?php echo htmlspecialchars($row['image']); ?>" class="cart-item-img">
+                                            <img src="<?php echo htmlspecialchars(product_image_path($row['image'])); ?>" class="cart-item-img">
                                             <span><?php echo htmlspecialchars($row['name']); ?></span>
                                         </div>
                                     </td>

@@ -84,7 +84,7 @@ if (isset($_POST['reset_admin'])) {
                     while($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . $row['id'] . "</td>";
-                        echo "<td><img src='uploads/" . htmlspecialchars($row['image']) . "' width='50' style='border-radius: 4px;'></td>";
+                        echo "<td><img src='" . htmlspecialchars(product_image_path($row['image'])) . "' width='50' style='border-radius: 4px;'></td>";
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td>LKR " . number_format($row['price'], 2) . "</td>";

@@ -35,7 +35,7 @@ $reviews_result = $conn->query($reviews_sql);
     <div style="display: flex; gap: 2rem; margin-top: 2rem; flex-wrap: wrap;">
         <!-- Product Image -->
         <div style="flex: 1; min-width: 300px;">
-            <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" style="width: 100%; border-radius: var(--radius); box-shadow: var(--shadow);">
+            <img src="<?php echo htmlspecialchars(product_image_path($product['image'])); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" style="width: 100%; border-radius: var(--radius); box-shadow: var(--shadow);">
         </div>
 
         <!-- Product Info -->

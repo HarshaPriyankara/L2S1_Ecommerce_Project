@@ -116,4 +116,7 @@ INSERT INTO products (name, category, description, price, image) VALUES
 ('Musta Digestive Churna', 'Powders & Churnas', 'Fine brown Musta (Nutgrass) digestive powder to relieve indigestion, bloating, and support a healthy gut.', 950.00, 'musta_churna.png'),
 ('Welmadata Skin Brightening Pack', 'Powders & Churnas', 'Vibrant red Welmadata herbal skin brightening powder to even out skin tone and reduce pigmentation.', 1300.00, 'welmadata_pack.png'),
 ('Pure Neem Extract Capsules', 'Capsules', 'Dark green Neem extract capsules to deeply detoxify the blood and promote clear skin from within.', 1450.00, 'neem_capsules.png'),
-('Brahmi Head Massage Oil', 'Oils & Thailas', 'Luxurious green Brahmi head massage oil. Calms the mind, induces deep sleep, and nourishes the scalp.', 2100.00, 'brahmi_massage_oil.png');
+('Brahmi Head Massage Oil', 'Oils & Thailas', 'Luxurious green Brahmi head massage oil. Calms the mind, induces deep sleep, and nourishes the scalp.', 2100.00, 'brahmi_massage_oil.png'),
+('Haritaki Extract Tablets', 'Capsules', 'Premium Haritaki extract tablets. A potent Ayurvedic rejuvenator that supports digestion, detoxifies the body, and promotes longevity.', 1750.00, 'triphala_tabs.png'),
+('Pippali Long Pepper Powder', 'Powders & Churnas', 'Authentic Pippali (Long Pepper) powder. Enhances metabolism, improves respiratory health, and aids in the absorption of nutrients.', 1100.00, 'musta_churna.png'),
+('Pure Shilajit Resin', 'Leheyas & Pastes', 'Premium pure Shilajit resin sourced from high altitudes. A powerful natural supplement that boosts energy, stamina, and overall vitality.', 4500.00, 'sample_paste.png');

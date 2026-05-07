@@ -147,7 +147,7 @@ include 'includes/header.php';
                             <div class="product-card-premium">
                                 <a href="product_details.php?id=<?php echo $row['id']; ?>" class="product-link" style="display: flex; flex-direction: column; height: 100%;">
                                     <div class="premium-img-container">
-                                        <img src="uploads/<?php echo htmlspecialchars($row['image']); ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
+                                        <img src="<?php echo htmlspecialchars(product_image_path($row['image'])); ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
                                     </div>
                                     <div class="product-info" style="padding: 0.5rem 0; flex: 1; display: flex; flex-direction: column;">
                                         <h3 class="product-title" style="font-size: 1.4rem; color: var(--primary-color); margin-bottom: 0.5rem; min-height: 3.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($row['name']); ?></h3>

@@ -40,7 +40,7 @@ $result = $conn->query($sql);
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 1rem;">
-                                <img src="uploads/<?php echo htmlspecialchars($row['image']); ?>" class="cart-item-img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                <img src="<?php echo htmlspecialchars(product_image_path($row['image'])); ?>" class="cart-item-img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
                                 <a href="product_details.php?id=<?php echo $row['id']; ?>" style="text-decoration: none; color: inherit; font-weight: bold;">
                                     <?php echo htmlspecialchars($row['name']); ?>
                                 </a>
