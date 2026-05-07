@@ -16,7 +16,9 @@
 
 3. **Database Connection**:
    - By default, the app connects to MySQL at `127.0.0.1:3306` with user `root`, empty password, and database `ayurveda_db`.
-   - If your XAMPP MySQL uses another port (for example `3308`), copy `includes/db.local.example.php` to `includes/db.local.php` and change the port there.
+   - Every team member should copy `includes/db.local.example.php` to `includes/db.local.php`.
+   - If your XAMPP MySQL uses another port (for example `3308`), change the port in `includes/db.local.php`.
+   - If your MySQL `root` user has a password, add that password in `includes/db.local.php`.
    - `includes/db.local.php` is ignored by git, so each team member can keep their own local settings.
 
 4. **Admin Account**:
@@ -34,3 +36,4 @@
 ## Troubleshooting
 - If images don't upload, ensure the `uploads` folder exists and has write permissions.
 - If the database does not connect, check `includes/db.local.php` and confirm your MySQL port in the XAMPP control panel.
+- `Access denied for user 'root'@'localhost' (using password: NO)` means your MySQL root account needs a password. Add it to `includes/db.local.php`.
