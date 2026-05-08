@@ -45,6 +45,7 @@ if (isset($_SESSION['cart'])) {
                     <?php endif; ?>
                     <li class="nav-group account-actions">
                         <a href="profile.php">Profile</a>
+                        <a href="order_history.php">Orders</a>
                         <a href="logout.php" class="btn btn-outline">Logout</a>
                     </li>
                 <?php else: ?>
