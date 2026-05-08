@@ -4,13 +4,15 @@ include 'includes/header.php';
 
 $search = trim($_GET['search'] ?? '');
 $search_like = '%' . $search . '%';
+$selected_category = trim($_GET['category'] ?? '');
 $min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? max(0, (float) $_GET['min_price']) : null;
 $max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? max(0, (float) $_GET['max_price']) : null;
 $price_min_limit = 0;
 $price_max_limit = 5000;
 $price_step = 50;
 $has_price_filter = $min_price !== null || $max_price !== null;
-$has_product_filters = $search !== '' || $has_price_filter;
+$has_category_filter = $selected_category !== '';
+$has_product_filters = $search !== '' || $has_price_filter || $has_category_filter;
 
 if ($min_price !== null && $max_price !== null && $min_price > $max_price) {
     [$min_price, $max_price] = [$max_price, $min_price];
@@ -27,6 +29,12 @@ if ($search !== '') {
     $filter_sql .= " AND (name LIKE ? OR description LIKE ? OR category LIKE ?)";
     $filter_types .= "sss";
     array_push($filter_params, $search_like, $search_like, $search_like);
+}
+
+if ($selected_category !== '') {
+    $filter_sql .= " AND category = ?";
+    $filter_types .= "s";
+    $filter_params[] = $selected_category;
 }
 
 if ($min_price !== null) {
@@ -162,6 +170,24 @@ function bind_stmt_params($stmt, $types, &$params) {
                     <input type="search" name="search" placeholder="Product, category, ingredient..." value="<?php echo htmlspecialchars($search); ?>">
                 </div>
             </div>
+            <div class="category-filter-field">
+                <label>Category / Type</label>
+                <div class="category-select-wrap">
+                    <i class="fas fa-layer-group"></i>
+                    <select name="category">
+                        <option value="">All Categories</option>
+                        <?php
+                        $category_options = $conn->query("SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category");
+                        while ($category_option = $category_options->fetch_assoc()):
+                            $category_value = $category_option['category'];
+                        ?>
+                            <option value="<?php echo htmlspecialchars($category_value); ?>" <?php echo $selected_category === $category_value ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($category_value); ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+            </div>
             <div class="price-filter-field">
                 <label>Price Range</label>
                 <input type="hidden" name="min_price" id="min_price_value" value="<?php echo $has_price_filter ? htmlspecialchars((string) $display_min_price) : ''; ?>">
@@ -198,6 +224,9 @@ function bind_stmt_params($stmt, $types, &$params) {
                         -
                         <?php echo $max_price !== null ? 'LKR ' . number_format($max_price, 2) : 'Any'; ?>
                     </span>
+                <?php endif; ?>
+                <?php if ($has_category_filter): ?>
+                    <span>Category: <?php echo htmlspecialchars($selected_category); ?></span>
                 <?php endif; ?>
             </p>
         <?php endif; ?>
