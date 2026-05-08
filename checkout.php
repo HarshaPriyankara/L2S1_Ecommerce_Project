@@ -53,7 +53,7 @@ if (isset($_POST['place_order'])) {
         <div style="text-align: center; padding: 4rem 2rem; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);">
             <i class="fas fa-check-circle" style="font-size: 5rem; color: var(--success); margin-bottom: 2rem;"></i>
             <h2 class="section-title">Order Placed Successfully!</h2>
-            <p>Thank you for shopping with දිවිසරණ. Your healthy life starts here.</p>
+            <p>Thank you for shopping with AYURORA. Your healthy life starts here.</p>
             <a href="index.php" class="btn btn-primary" style="margin-top: 2rem;">Continue Shopping</a>
         </div>
     <?php else: ?>

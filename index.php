@@ -65,7 +65,7 @@ include 'includes/header.php';
                 <span style="color: var(--accent-color); font-weight: 700; text-transform: uppercase; letter-spacing: 3px;">Our Roots</span>
                 <h2 style="font-size: 3rem; margin: 1.5rem 0;">Handcrafted with Nature’s Finest</h2>
                 <p style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">
-                    For centuries, Sri Lankan Ayurveda has been a beacon of natural healing. At දිවිසරණ, we preserve this sacred tradition by combining ancient wisdom with modern precision. Every product is a testament to the healing power of the earth.
+                    For centuries, Sri Lankan Ayurveda has been a beacon of natural healing. At AYURORA, we preserve this sacred tradition by combining ancient wisdom with modern precision. Every product is a testament to the healing power of the earth.
                 </p>
                 <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
                     <div>

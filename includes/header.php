@@ -16,7 +16,7 @@ if (isset($_SESSION['cart'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>දිවිසරණ | Premium Sri Lankan Healing</title>
+    <title>AYURORA | Premium Sri Lankan Healing</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=1.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -25,8 +25,8 @@ if (isset($_SESSION['cart'])) {
     <header>
         <nav class="navbar">
             <a href="index.php" class="logo">
-                <img src="assets/images/divisarana-logo-small.png" alt="දිවිසරණ logo" class="brand-logo" width="24" height="24">
-                <span class="brand-name">දිවිසරණ</span>
+                <img src="assets/images/ayurora-logo-small.png" alt="AYURORA logo" class="brand-logo" width="24" height="24">
+                <span class="brand-name">AYURORA</span>
             </a>
             <ul class="nav-links">
                 <li><a href="index.php">Home</a></li>

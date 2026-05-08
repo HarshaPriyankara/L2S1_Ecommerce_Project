@@ -1,4 +1,4 @@
-# දිවිසරණ System Setup Guide
+# AYURORA System Setup Guide
 
 ## Prerequisites
 1. **XAMPP** or **WAMP** server installed.
@@ -23,7 +23,7 @@
    - `includes/db.local.php` is ignored by git, so each team member can keep their own local settings.
 
 4. **Admin Account**:
-   - Default Admin Email: `admin@ayurveda.com`
+   - Default Admin Email: `admin@ayurora.com`
    - Default Admin Password: `admin123`
 
 5. **Running the App**:

@@ -4,8 +4,8 @@
         <div class="footer-content container">
             <div class="footer-section">
                 <a href="index.php" class="logo" style="color: var(--white); margin-bottom: 1.5rem;">
-                    <img src="assets/images/divisarana-logo-small.png" alt="දිවිසරණ logo" class="brand-logo" width="24" height="24">
-                    <span class="brand-name">දිවිසරණ</span>
+                    <img src="assets/images/ayurora-logo-small.png" alt="AYURORA logo" class="brand-logo" width="24" height="24">
+                    <span class="brand-name">AYURORA</span>
                 </a>
                 <p>Preserving the ancient wisdom of Sri Lankan Ayurveda. We bring nature's purest healing to your modern lifestyle with premium, authentic products.</p>
                 <div class="social-links" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
@@ -26,12 +26,12 @@
             <div class="footer-section">
                 <h3>Contact</h3>
                 <p><i class="fas fa-map-marker-alt" style="color: var(--accent-color); margin-right: 0.5rem;"></i> No 123, Galle Road, Colombo</p>
-                <p><i class="fas fa-envelope" style="color: var(--accent-color); margin-right: 0.5rem;"></i> wellness@divisarana.lk</p>
+                <p><i class="fas fa-envelope" style="color: var(--accent-color); margin-right: 0.5rem;"></i> wellness@ayurora.lk</p>
                 <p><i class="fas fa-phone" style="color: var(--accent-color); margin-right: 0.5rem;"></i> +94 77 123 4567</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; <?php echo date('Y'); ?> දිවිසරණ. Crafted for Wellness.</p>
+            <p>&copy; <?php echo date('Y'); ?> AYURORA. Crafted for Wellness.</p>
         </div>
     </footer>
 </body>
