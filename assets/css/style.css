@@ -1170,6 +1170,80 @@ footer .brand-name {
     margin: 0 auto 4rem;
 }
 
+.order-confirmation-page {
+    max-width: 980px;
+    margin: 0 auto 4rem;
+}
+
+.confirmation-panel {
+    background: var(--white);
+    padding: 3rem 2rem;
+    border: 1px solid rgba(27, 60, 45, 0.08);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-premium);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.confirmation-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 1.2rem;
+    border-radius: 50%;
+    background: rgba(0, 184, 148, 0.12);
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.confirmation-panel .section-title {
+    max-width: 680px;
+    margin: 0 auto 1rem;
+}
+
+.confirmation-panel p {
+    max-width: 620px;
+    margin: 0 auto 2rem;
+    color: var(--text-light);
+}
+
+.confirmation-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.confirmation-meta div {
+    padding: 1rem;
+    border-radius: 10px;
+    background: var(--primary-light);
+}
+
+.confirmation-meta span {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.confirmation-meta strong {
+    color: var(--primary-dark);
+    font-size: 1rem;
+}
+
+.confirmation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
 .order-history-header {
     display: flex;
     align-items: center;
@@ -1395,6 +1469,10 @@ footer .brand-name {
     }
 
     .order-status-form {
+        grid-template-columns: 1fr;
+    }
+
+    .confirmation-meta {
         grid-template-columns: 1fr;
     }
 }
