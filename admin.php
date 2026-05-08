@@ -21,7 +21,7 @@ if (isset($_GET['delete'])) {
 
 // Handle Reset Admin (Merged from fix_admin.php)
 if (isset($_POST['reset_admin'])) {
-    $email = 'admin@ayurveda.com';
+    $email = 'admin@ayurora.com';
     $password = 'admin123';
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     $name = 'Admin User';
@@ -55,7 +55,7 @@ if (isset($_POST['reset_admin'])) {
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <h2 class="section-title" style="margin-bottom: 0;">Admin Dashboard</h2>
         <div style="display: flex; gap: 1rem;">
-            <form method="POST" action="" onsubmit="return confirm('Reset Admin Credentials to Default? (admin@ayurveda.com / admin123)');">
+            <form method="POST" action="" onsubmit="return confirm('Reset Admin Credentials to Default? (admin@ayurora.com / admin123)');">
                 <button type="submit" name="reset_admin" class="btn-outline" style="border-color: #f39c12; color: #f39c12;"><i class="fas fa-tools"></i> Reset Admin</button>
             </form>
             <a href="add_product.php" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Product</a>
@@ -84,7 +84,7 @@ if (isset($_POST['reset_admin'])) {
                     while($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . $row['id'] . "</td>";
-                        echo "<td><img src='uploads/" . htmlspecialchars($row['image']) . "' width='50' style='border-radius: 4px;'></td>";
+                        echo "<td><img src='" . htmlspecialchars(product_image_path($row['image'])) . "' width='50' style='border-radius: 4px;'></td>";
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td>LKR " . number_format($row['price'], 2) . "</td>";

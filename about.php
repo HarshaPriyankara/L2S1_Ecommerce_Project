@@ -10,7 +10,7 @@ include 'includes/header.php';
 <section class="premium-hero" style="height: 60vh; min-height: 400px; background: linear-gradient(rgba(27,60,45,0.7), rgba(27,60,45,0.9)), url('assets/images/homeimage.jpeg') center/cover;">
     <div class="premium-hero-content" style="max-width: 900px; padding: 2rem; margin: 0 auto;">
         <span class="hero-tagline reveal" style="color: var(--accent-color);">Our Heritage & Philosophy</span>
-        <h1 class="reveal" style="animation-delay: 0.2s; font-size: 4rem; margin-bottom: 1rem; line-height: 1.2;">The PosMini <br> Experience</h1>
+        <h1 class="reveal" style="animation-delay: 0.2s; font-size: 4rem; margin-bottom: 1rem; line-height: 1.2;">The AYURORA <br> Experience</h1>
         <p class="hero-description reveal" style="animation-delay: 0.4s; font-size: 1.2rem; color: #fff;">
             Rooted in authentic Sri Lankan traditions and crafted for modern wellness to restore your body, mind, and spirit.
         </p>
@@ -25,7 +25,7 @@ include 'includes/header.php';
         <div style="width: 80px; height: 4px; background: var(--accent-color); margin: 0 auto 3rem;"></div>
         
         <p style="color: #444; font-size: 1.2rem; line-height: 1.9; margin-bottom: 2rem;">
-            PosMini Ayurveda started with a core belief: true healing originates from the earth. For over 15 years, we have been honoring and preserving the ancient, sacred traditions of Sri Lankan Ayurveda. Our journey is driven by a profound commitment to delivering healing in its absolute purest form.
+            AYURORA started with a core belief: true healing originates from the earth. For over 15 years, we have been honoring and preserving the ancient, sacred traditions of Sri Lankan Ayurveda. Our journey is driven by a profound commitment to delivering healing in its absolute purest form.
         </p>
         <p style="color: #444; font-size: 1.2rem; line-height: 1.9; margin-bottom: 4rem;">
             We hand-select nature's finest herbs, oils, and spices, combining age-old wisdom with modern precision. Every product created in our facility is a symbol of our dedication to your health, offering 100% natural, chemical-free solutions devoid of artificial additives.

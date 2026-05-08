@@ -1,0 +1,17 @@
+# Local database credentials and machine-specific settings
+includes/db.local.php
+.env
+
+# Local debug scripts
+test_db*.php
+
+# XAMPP / OS noise
+*.log
+Thumbs.db
+.DS_Store
+
+# Locally uploaded admin files usually start with a timestamp.
+# Keep the sample product images in git so team members can see products.
+uploads/[0-9]*_*
+
+includes/db.php

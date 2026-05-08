@@ -35,7 +35,7 @@ $reviews_result = $conn->query($reviews_sql);
     <div style="display: flex; gap: 2rem; margin-top: 2rem; flex-wrap: wrap;">
         <!-- Product Image -->
         <div style="flex: 1; min-width: 300px;">
-            <img src="uploads/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" style="width: 100%; border-radius: var(--radius); box-shadow: var(--shadow);">
+            <img src="<?php echo htmlspecialchars(product_image_path($product['image'])); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" style="width: 100%; border-radius: var(--radius); box-shadow: var(--shadow);">
         </div>
 
         <!-- Product Info -->
@@ -65,6 +65,7 @@ $reviews_result = $conn->query($reviews_sql);
             <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
                 <form action="cart.php" method="POST" style="flex: 1;">
                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                    <input type="hidden" name="redirect_to" value="product_details.php?id=<?php echo $product['id']; ?>">
                     <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 100%;">
                         <i class="fas fa-cart-plus"></i> Add to Cart
                     </button>

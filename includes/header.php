@@ -16,17 +16,24 @@ if (isset($_SESSION['cart'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PosMini Ayurveda | Premium Sri Lankan Healing</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=1.1">
+    <title>AYURORA | Premium Sri Lankan Healing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css?v=1.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
         <nav class="navbar">
             <a href="index.php" class="logo">
-                <i class="fas fa-leaf"></i> PosMini Ayurveda
+                <img src="assets/images/ayurora-logo-small.png" alt="AYURORA logo" class="brand-logo" width="24" height="24">
+                <span class="brand-name">AYURORA</span>
             </a>
+            <form class="nav-search" method="GET" action="index.php#products">
+                <label class="sr-only" for="nav-search-input">Search products</label>
+                <i class="fas fa-search"></i>
+                <input id="nav-search-input" type="search" name="search" placeholder="Search products" value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
+                <button type="submit" aria-label="Search products"><i class="fas fa-arrow-right"></i></button>
+            </form>
             <ul class="nav-links">
                 <li><a href="index.php">Home</a></li>
                 <li><a href="index.php#products">Products</a></li> 
@@ -35,15 +42,22 @@ if (isset($_SESSION['cart'])) {
                     <?php if ($_SESSION['role'] === 'admin'): ?>
                         <li><a href="add_product.php">Add Product</a></li>
                         <li><a href="admin.php">Dashboard</a></li>
+                        <li><a href="admin_orders.php">Manage Orders</a></li>
                     <?php endif; ?>
-                    <li><a href="wishlist.php">Wishlist</a></li>
-                    <li><a href="logout.php" class="btn btn-outline">Logout</a></li>
+                    <li class="nav-group account-actions">
+                        <a href="profile.php">Profile</a>
+                        <a href="order_history.php">Orders</a>
+                        <a href="logout.php" class="btn btn-outline">Logout</a>
+                    </li>
                 <?php else: ?>
                     <li><a href="login.php" class="btn btn-primary">Login</a></li>
                     <li><a href="register.php" class="btn btn-outline">Register</a></li>
                 <?php endif; ?>
                 
-                <li>
+                <li class="nav-group shopping-actions">
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <a href="wishlist.php">Wishlist</a>
+                    <?php endif; ?>
                     <a href="cart.php" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
                         <?php if($cart_count > 0): ?>
@@ -57,3 +71,12 @@ if (isset($_SESSION['cart'])) {
     
     <!-- Main Content Wrapper -->
     <main class="container">
+        <?php if (isset($_GET['cart_added']) && $_GET['cart_added'] === '1'): ?>
+            <div class="cart-toast" role="status" aria-live="polite">
+                <div>
+                    <strong>Added to cart</strong>
+                    <span>You can keep shopping or view your cart when ready.</span>
+                </div>
+                <a href="cart.php">View Cart</a>
+            </div>
+        <?php endif; ?>

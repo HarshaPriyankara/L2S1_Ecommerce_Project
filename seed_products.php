@@ -78,6 +78,286 @@ $products = [
         'description' => 'A traditional and authentic herbal concoction of 14 herbs that gives fast relief from cold, cough, and fever symptoms. Easy to prepare instantly.',
         'price' => 650.00,
         'image' => 'remedy_pack.png'
+    ],
+    [
+        'name' => 'Turmeric & Sandalwood Bath Soap',
+        'category' => 'Soaps',
+        'description' => 'A natural Ayurvedic bath soap crafted with turmeric and sandalwood. Perfect for glowing and healthy skin.',
+        'price' => 350.00,
+        'image' => 'turmeric_soap.png'
+    ],
+    [
+        'name' => 'Kumkumadi Tailam Face Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'An ancient Ayurvedic recipe for skin lightening, anti-aging and glowing skin. Enriched with pure saffron.',
+        'price' => 2500.00,
+        'image' => 'kumkumadi.png'
+    ],
+    [
+        'name' => 'Aloe Vera Cooling Gel',
+        'category' => 'Creams & Balms',
+        'description' => 'Multipurpose clear aloe vera gel that deeply hydrates, cools, and soothes the skin and scalp.',
+        'price' => 800.00,
+        'image' => 'aloe_gel.png'
+    ],
+    [
+        'name' => 'Amalaki Immune Support',
+        'category' => 'Capsules',
+        'description' => 'Premium organic Amalaki (Amla) Ayurvedic capsules. A powerful natural antioxidant that supports immunity, digestion, and skin health.',
+        'price' => 1800.00,
+        'image' => 'amalaki_caps.png'
+    ],
+    [
+        'name' => 'Siddhalepa Herbal Balm',
+        'category' => 'Creams & Balms',
+        'description' => 'Traditional Ayurvedic herbal pain relief balm. Provides instant relief from headaches, joint pains, and cold symptoms.',
+        'price' => 550.00,
+        'image' => 'herbal_balm.png'
+    ],
+    [
+        'name' => 'Jeevani Energy Drink Powder',
+        'category' => 'Powders & Churnas',
+        'description' => 'Ayurvedic herbal energy powder to revitalize your body and mind. Boosts stamina and reduces fatigue naturally.',
+        'price' => 1250.00,
+        'image' => 'energy_powder.png'
+    ],
+    [
+        'name' => 'Mahanarayan Oil Extra',
+        'category' => 'Oils & Thailas',
+        'description' => 'A traditional Ayurvedic massage oil designed to deeply nourish muscles and joints, improving flexibility and easing stiffness.',
+        'price' => 2200.00,
+        'image' => 'massage_oil.png'
+    ],
+    [
+        'name' => 'Gotu Kola Hair Oil',
+        'category' => 'Hair & Skin Care',
+        'description' => 'A premium green Gotu Kola Ayurvedic hair oil. Nourishes the scalp, promotes hair growth, and reduces hair fall.',
+        'price' => 1100.00,
+        'image' => 'gotukola_oil.png'
+    ],
+    [
+        'name' => 'Venivel & Turmeric Face Wash',
+        'category' => 'Hair & Skin Care',
+        'description' => 'A golden Venivel and Turmeric face wash. Deeply cleanses and brightens the skin while fighting acne-causing bacteria naturally.',
+        'price' => 1350.00,
+        'image' => 'venivel_facewash.png'
+    ],
+    [
+        'name' => 'Navaratna Massage Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'A luxurious red Ayurvedic massage oil infused with 9 precious herbs. Relieves stress, fatigue, and body aches.',
+        'price' => 2400.00,
+        'image' => 'navaratna_oil.png'
+    ],
+    [
+        'name' => 'Link Samahan Spicy Balm',
+        'category' => 'Creams & Balms',
+        'description' => 'A traditional herbal pain relief balm. Highly effective for fast relief from headaches, colds, and muscular pains.',
+        'price' => 350.00,
+        'image' => 'samahan_balm.png'
+    ],
+    [
+        'name' => 'Coriander & Ginger Tea',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'Authentic Ayurvedic coriander and ginger herbal tea. Soothes the throat, improves digestion, and boosts natural immunity.',
+        'price' => 850.00,
+        'image' => 'coriander_tea.png'
+    ],
+    [
+        'name' => 'Triphala Digestive Tablets',
+        'category' => 'Capsules',
+        'description' => 'Traditional Ayurvedic Triphala tablets. A gentle daily detox that promotes healthy digestion and regular bowel movements.',
+        'price' => 1600.00,
+        'image' => 'triphala_tabs.png'
+    ],
+    [
+        'name' => 'Kohomba Neem Herbal Soap',
+        'category' => 'Soaps',
+        'description' => 'A rustic handmade Kohomba (Neem) herbal soap. Contains powerful antibacterial properties for clear, healthy skin.',
+        'price' => 250.00,
+        'image' => 'kohomba_soap.png'
+    ],
+    [
+        'name' => 'Dashamoola Arishta',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'A traditional liquid herbal tonic made from 10 potent roots. Restores energy, reduces inflammation, and balances Vata dosha.',
+        'price' => 1950.00,
+        'image' => 'dashamoola.png'
+    ],
+    [
+        'name' => 'Suwadharani Immunity Drink',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'A powerful Ayurvedic immunity powder drink made from traditional Sri Lankan herbs to protect against viral infections.',
+        'price' => 950.00,
+        'image' => 'suwadharani.png'
+    ],
+    [
+        'name' => 'Kasthuri Kaha Night Cream',
+        'category' => 'Creams & Balms',
+        'description' => 'A luxurious Kasthuri Kaha (Wild Turmeric) night cream. Rejuvenates the skin overnight and enhances natural radiance.',
+        'price' => 2100.00,
+        'image' => 'kasthuri_cream.png'
+    ],
+    [
+        'name' => 'Sandalwood Face Pack',
+        'category' => 'Powders & Churnas',
+        'description' => 'Pure Sandalwood (Chandanam) face pack powder for a glowing and blemish-free complexion.',
+        'price' => 1200.00,
+        'image' => 'sandalwood_powder.png'
+    ],
+    [
+        'name' => 'Shatavari Women\'s Health',
+        'category' => 'Capsules',
+        'description' => 'Ayurvedic Shatavari capsules to support female reproductive health, hormonal balance, and vitality.',
+        'price' => 1850.00,
+        'image' => 'shatavari_caps.png'
+    ],
+    [
+        'name' => 'Bhringraj Hair Growth Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'Dark green Bhringraj Ayurvedic hair oil. Known as the king of herbs for hair growth and preventing premature graying.',
+        'price' => 2200.00,
+        'image' => 'bhringraj_oil.png'
+    ],
+    [
+        'name' => 'Kumari Herbal Shampoo',
+        'category' => 'Hair & Skin Care',
+        'description' => 'A soothing Aloe Vera (Kumari) herbal shampoo. Gently cleanses the scalp while maintaining natural moisture.',
+        'price' => 950.00,
+        'image' => 'kumari_shampoo.png'
+    ],
+    [
+        'name' => 'Pas Panguwa Remedy Pack',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'Traditional Ayurvedic Pas Panguwa packet containing dried ginger, coriander, and other herbs for fast relief from body aches and colds.',
+        'price' => 450.00,
+        'image' => 'pas_panguwa.png'
+    ],
+    [
+        'name' => 'Tulsi Holy Basil Tea',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'A warm and refreshing cup of Tulsi (Holy Basil) herbal tea. Promotes respiratory health and reduces stress.',
+        'price' => 750.00,
+        'image' => 'tulsi_tea.png'
+    ],
+    [
+        'name' => 'Rathmal (Ixora) Beauty Soap',
+        'category' => 'Soaps',
+        'description' => 'A beautiful pinkish-red herbal soap made from Rathmal (Ixora) flowers. Leaves skin soft and glowing.',
+        'price' => 300.00,
+        'image' => 'rathmal_soap.png'
+    ],
+    [
+        'name' => 'Guduchi Immune Powder',
+        'category' => 'Powders & Churnas',
+        'description' => 'Guduchi (Giloy) herbal powder to naturally boost immunity and protect the body from infections.',
+        'price' => 1150.00,
+        'image' => 'guduchi_powder.png'
+    ],
+    [
+        'name' => 'Pinda Thailaya Cooling Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'A traditional red Pinda Thailaya cooling oil. Excellent for relieving burning sensations and joint pain associated with gout.',
+        'price' => 1650.00,
+        'image' => 'pinda_thailaya.png'
+    ],
+    [
+        'name' => 'Nelli Rasayanaya',
+        'category' => 'Leheyas & Pastes',
+        'description' => 'A sweet and thick Nelli (Amla) Rasayanaya herbal paste. Rich in Vitamin C and acts as a powerful antioxidant.',
+        'price' => 2800.00,
+        'image' => 'nelli_rasayanaya.png'
+    ],
+    [
+        'name' => 'Lunuwila Memory Syrup',
+        'category' => 'Herbal Tea & Kwath',
+        'description' => 'Lunuwila (Bacopa) memory syrup to enhance brain function, memory retention, and concentration.',
+        'price' => 1400.00,
+        'image' => 'lunuwila_syrup.png'
+    ],
+    [
+        'name' => 'Kottamchukkadi Pain Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'A traditional Ayurvedic oil excellent for managing muscle pain, inflammation, and sciatica.',
+        'price' => 1900.00,
+        'image' => 'kottamchukkadi.png'
+    ],
+    [
+        'name' => 'Organic Moringa Capsules',
+        'category' => 'Capsules',
+        'description' => 'Bright green Moringa extract capsules packed with essential vitamins, minerals, and amino acids.',
+        'price' => 1600.00,
+        'image' => 'moringa_capsules.png'
+    ],
+    [
+        'name' => 'Golden Turmeric Day Cream',
+        'category' => 'Creams & Balms',
+        'description' => 'A luxurious jar of golden yellow Turmeric day cream. Brightens complexion and protects from environmental damage.',
+        'price' => 1950.00,
+        'image' => 'turmeric_day_cream.png'
+    ],
+    [
+        'name' => 'Vata Relief Massage Balm',
+        'category' => 'Creams & Balms',
+        'description' => 'A traditional tin of Vata relief massage balm. Warms the muscles and eases stiffness instantly.',
+        'price' => 650.00,
+        'image' => 'vata_balm.png'
+    ],
+    [
+        'name' => 'Sudhu Handun Soap',
+        'category' => 'Soaps',
+        'description' => 'A pure Sudhu Handun (White Sandalwood) herbal soap for an unmatched premium spa aesthetic at home.',
+        'price' => 400.00,
+        'image' => 'sudhu_handun_soap.png'
+    ],
+    [
+        'name' => 'Musta Digestive Churna',
+        'category' => 'Powders & Churnas',
+        'description' => 'Fine brown Musta (Nutgrass) digestive powder to relieve indigestion, bloating, and support a healthy gut.',
+        'price' => 950.00,
+        'image' => 'musta_churna.png'
+    ],
+    [
+        'name' => 'Welmadata Skin Brightening Pack',
+        'category' => 'Powders & Churnas',
+        'description' => 'Vibrant red Welmadata herbal skin brightening powder to even out skin tone and reduce pigmentation.',
+        'price' => 1300.00,
+        'image' => 'welmadata_pack.png'
+    ],
+    [
+        'name' => 'Pure Neem Extract Capsules',
+        'category' => 'Capsules',
+        'description' => 'Dark green Neem extract capsules to deeply detoxify the blood and promote clear skin from within.',
+        'price' => 1450.00,
+        'image' => 'neem_capsules.png'
+    ],
+    [
+        'name' => 'Brahmi Head Massage Oil',
+        'category' => 'Oils & Thailas',
+        'description' => 'Luxurious green Brahmi head massage oil. Calms the mind, induces deep sleep, and nourishes the scalp.',
+        'price' => 2100.00,
+        'image' => 'brahmi_massage_oil.png'
+    ],
+    [
+        'name' => 'Haritaki Extract Tablets',
+        'category' => 'Capsules',
+        'description' => 'Premium Haritaki extract tablets. A potent Ayurvedic rejuvenator that supports digestion, detoxifies the body, and promotes longevity.',
+        'price' => 1750.00,
+        'image' => 'triphala_tabs.png'
+    ],
+    [
+        'name' => 'Pippali Long Pepper Powder',
+        'category' => 'Powders & Churnas',
+        'description' => 'Authentic Pippali (Long Pepper) powder. Enhances metabolism, improves respiratory health, and aids in the absorption of nutrients.',
+        'price' => 1100.00,
+        'image' => 'musta_churna.png'
+    ],
+    [
+        'name' => 'Pure Shilajit Resin',
+        'category' => 'Leheyas & Pastes',
+        'description' => 'Premium pure Shilajit resin sourced from high altitudes. A powerful natural supplement that boosts energy, stamina, and overall vitality.',
+        'price' => 4500.00,
+        'image' => 'sample_paste.png'
     ]
 ];
 

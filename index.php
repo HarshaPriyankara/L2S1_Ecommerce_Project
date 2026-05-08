@@ -1,6 +1,59 @@
 <?php
 include 'includes/db.php';
 include 'includes/header.php';
+
+$search = trim($_GET['search'] ?? '');
+$search_like = '%' . $search . '%';
+$selected_category = trim($_GET['category'] ?? '');
+$min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? max(0, (float) $_GET['min_price']) : null;
+$max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? max(0, (float) $_GET['max_price']) : null;
+$price_min_limit = 0;
+$price_max_limit = 5000;
+$price_step = 50;
+$has_price_filter = $min_price !== null || $max_price !== null;
+$has_category_filter = $selected_category !== '';
+$has_product_filters = $search !== '' || $has_price_filter || $has_category_filter;
+
+if ($min_price !== null && $max_price !== null && $min_price > $max_price) {
+    [$min_price, $max_price] = [$max_price, $min_price];
+}
+
+$display_min_price = $min_price ?? $price_min_limit;
+$display_max_price = $max_price ?? $price_max_limit;
+
+$filter_sql = "is_deleted = 0";
+$filter_types = "";
+$filter_params = [];
+
+if ($search !== '') {
+    $filter_sql .= " AND (name LIKE ? OR description LIKE ? OR category LIKE ?)";
+    $filter_types .= "sss";
+    array_push($filter_params, $search_like, $search_like, $search_like);
+}
+
+if ($selected_category !== '') {
+    $filter_sql .= " AND category = ?";
+    $filter_types .= "s";
+    $filter_params[] = $selected_category;
+}
+
+if ($min_price !== null) {
+    $filter_sql .= " AND price >= ?";
+    $filter_types .= "d";
+    $filter_params[] = $min_price;
+}
+
+if ($max_price !== null) {
+    $filter_sql .= " AND price <= ?";
+    $filter_types .= "d";
+    $filter_params[] = $max_price;
+}
+
+function bind_stmt_params($stmt, $types, &$params) {
+    if ($types !== '') {
+        $stmt->bind_param($types, ...$params);
+    }
+}
 ?>
 
 <!-- Close the default container for full-width home page sections -->
@@ -20,7 +73,7 @@ include 'includes/header.php';
         </p>
         <div class="hero-actions reveal" style="animation-delay: 0.6s;">
             <a href="#products" class="btn btn-accent btn-lg" style="padding: 1.2rem 3rem; font-size: 1.1rem; border-radius: 50px;">Shop Collection</a>
-            <a href="#philosophy" class="btn btn-outline btn-lg" style="padding: 1.2rem 3rem; font-size: 1.1rem; border-radius: 50px; border-color: white; color: white; margin-left: 1rem;">Our Story</a>
+            <a href="#philosophy" class="btn btn-outline btn-lg hero-story-btn">Our Story</a>
         </div>
     </div>
 </section>
@@ -65,7 +118,7 @@ include 'includes/header.php';
                 <span style="color: var(--accent-color); font-weight: 700; text-transform: uppercase; letter-spacing: 3px;">Our Roots</span>
                 <h2 style="font-size: 3rem; margin: 1.5rem 0;">Handcrafted with Nature’s Finest</h2>
                 <p style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">
-                    For centuries, Sri Lankan Ayurveda has been a beacon of natural healing. At PosMini, we preserve this sacred tradition by combining ancient wisdom with modern precision. Every product is a testament to the healing power of the earth.
+                    For centuries, Sri Lankan Ayurveda has been a beacon of natural healing. At AYURORA, we preserve this sacred tradition by combining ancient wisdom with modern precision. Every product is a testament to the healing power of the earth.
                 </p>
                 <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
                     <div>
@@ -109,22 +162,110 @@ include 'includes/header.php';
             <div style="width: 80px; height: 4px; background: var(--accent-color); margin: 2rem auto;"></div>
         </div>
 
+        <form class="product-search" method="GET" action="index.php#products">
+            <div class="product-search-main">
+                <label>Search</label>
+                <div class="product-search-field">
+                    <i class="fas fa-search"></i>
+                    <input type="search" name="search" placeholder="Product, category, ingredient..." value="<?php echo htmlspecialchars($search); ?>">
+                </div>
+            </div>
+            <div class="category-filter-field">
+                <label>Category / Type</label>
+                <div class="category-select-wrap">
+                    <i class="fas fa-layer-group"></i>
+                    <select name="category">
+                        <option value="">All Categories</option>
+                        <?php
+                        $category_options = $conn->query("SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category");
+                        while ($category_option = $category_options->fetch_assoc()):
+                            $category_value = $category_option['category'];
+                        ?>
+                            <option value="<?php echo htmlspecialchars($category_value); ?>" <?php echo $selected_category === $category_value ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($category_value); ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="price-filter-field">
+                <label>Price Range</label>
+                <input type="hidden" name="min_price" id="min_price_value" value="<?php echo $has_price_filter ? htmlspecialchars((string) $display_min_price) : ''; ?>">
+                <input type="hidden" name="max_price" id="max_price_value" value="<?php echo $has_price_filter ? htmlspecialchars((string) $display_max_price) : ''; ?>">
+                <div class="price-slider-values">
+                    <span id="min_price_label">LKR <?php echo number_format($display_min_price, 0); ?></span>
+                    <span id="max_price_label">LKR <?php echo number_format($display_max_price, 0); ?></span>
+                </div>
+                <div class="price-slider">
+                    <div class="price-slider-track"></div>
+                    <input type="range" id="min_price_slider" min="<?php echo $price_min_limit; ?>" max="<?php echo $price_max_limit; ?>" step="<?php echo $price_step; ?>" value="<?php echo htmlspecialchars((string) $display_min_price); ?>">
+                    <input type="range" id="max_price_slider" min="<?php echo $price_min_limit; ?>" max="<?php echo $price_max_limit; ?>" step="<?php echo $price_step; ?>" value="<?php echo htmlspecialchars((string) $display_max_price); ?>">
+                </div>
+            </div>
+            <div class="product-search-actions">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-sliders"></i> Apply</button>
+                <?php if ($has_product_filters): ?>
+                    <a href="index.php#products" class="btn btn-outline">Clear</a>
+                <?php endif; ?>
+            </div>
+        </form>
+
+        <?php if ($has_product_filters): ?>
+            <p class="search-summary">
+                <?php if ($search !== ''): ?>
+                    Showing results for <strong><?php echo htmlspecialchars($search); ?></strong>
+                <?php else: ?>
+                    Showing filtered products
+                <?php endif; ?>
+                <?php if ($has_price_filter): ?>
+                    <span>
+                        Price:
+                        <?php echo $min_price !== null ? 'LKR ' . number_format($min_price, 2) : 'Any'; ?>
+                        -
+                        <?php echo $max_price !== null ? 'LKR ' . number_format($max_price, 2) : 'Any'; ?>
+                    </span>
+                <?php endif; ?>
+                <?php if ($has_category_filter): ?>
+                    <span>Category: <?php echo htmlspecialchars($selected_category); ?></span>
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
+
         <!-- Category Navigation -->
         <div class="category-nav" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 4rem;">
             <?php
-            $cat_result_nav = $conn->query("SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category");
+            if ($has_product_filters) {
+                $cat_nav_stmt = $conn->prepare("SELECT DISTINCT category FROM products WHERE $filter_sql ORDER BY category");
+                bind_stmt_params($cat_nav_stmt, $filter_types, $filter_params);
+                $cat_nav_stmt->execute();
+                $cat_result_nav = $cat_nav_stmt->get_result();
+            } else {
+                $cat_result_nav = $conn->query("SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category");
+            }
+
             if ($cat_result_nav->num_rows > 0) {
                 while($nav_row = $cat_result_nav->fetch_assoc()) {
                     $cat_name = $nav_row['category'];
                     echo '<a href="#' . strtolower(str_replace(' ', '-', $cat_name)) . '" class="btn-outline" style="padding: 0.6rem 1.5rem; font-size: 0.85rem; border-radius: 50px;">' . htmlspecialchars($cat_name) . '</a>';
                 }
             }
+
+            if (isset($cat_nav_stmt)) {
+                $cat_nav_stmt->close();
+            }
             ?>
         </div>
 
         <?php
-        $cat_sql = "SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category";
-        $cat_result = $conn->query($cat_sql);
+        if ($has_product_filters) {
+            $cat_stmt = $conn->prepare("SELECT DISTINCT category FROM products WHERE $filter_sql ORDER BY category");
+            bind_stmt_params($cat_stmt, $filter_types, $filter_params);
+            $cat_stmt->execute();
+            $cat_result = $cat_stmt->get_result();
+        } else {
+            $cat_sql = "SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category";
+            $cat_result = $conn->query($cat_sql);
+        }
 
         if ($cat_result->num_rows > 0) {
             while($cat_row = $cat_result->fetch_assoc()) {
@@ -138,8 +279,17 @@ include 'includes/header.php';
                 
                 <div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 3rem; align-items: stretch;">
                     <?php
-                    $sql = "SELECT * FROM products WHERE is_deleted = 0 AND category = '" . $conn->real_escape_string($category) . "' ORDER BY created_at DESC";
-                    $result = $conn->query($sql);
+                    if ($has_product_filters) {
+                        $product_stmt = $conn->prepare("SELECT * FROM products WHERE category = ? AND $filter_sql ORDER BY created_at DESC");
+                        $product_filter_types = 's' . $filter_types;
+                        $product_filter_params = array_merge([$category], $filter_params);
+                        bind_stmt_params($product_stmt, $product_filter_types, $product_filter_params);
+                        $product_stmt->execute();
+                        $result = $product_stmt->get_result();
+                    } else {
+                        $sql = "SELECT * FROM products WHERE is_deleted = 0 AND category = '" . $conn->real_escape_string($category) . "' ORDER BY created_at DESC";
+                        $result = $conn->query($sql);
+                    }
 
                     if ($result->num_rows > 0) {
                         while($row = $result->fetch_assoc()) {
@@ -147,7 +297,7 @@ include 'includes/header.php';
                             <div class="product-card-premium">
                                 <a href="product_details.php?id=<?php echo $row['id']; ?>" class="product-link" style="display: flex; flex-direction: column; height: 100%;">
                                     <div class="premium-img-container">
-                                        <img src="uploads/<?php echo htmlspecialchars($row['image']); ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
+                                        <img src="<?php echo htmlspecialchars(product_image_path($row['image'])); ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
                                     </div>
                                     <div class="product-info" style="padding: 0.5rem 0; flex: 1; display: flex; flex-direction: column;">
                                         <h3 class="product-title" style="font-size: 1.4rem; color: var(--primary-color); margin-bottom: 0.5rem; min-height: 3.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($row['name']); ?></h3>
@@ -174,6 +324,7 @@ include 'includes/header.php';
                                             <span class="product-price" style="margin: 0; font-size: 1.5rem; color: var(--primary-color);">LKR <?php echo number_format($row['price'], 2); ?></span>
                                             <form action="cart.php" method="POST">
                                                 <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
+                                                <input type="hidden" name="redirect_to" value="index.php#products">
                                                 <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
@@ -185,10 +336,32 @@ include 'includes/header.php';
                             <?php
                         }
                     }
+
+                    if (isset($product_stmt)) {
+                        $product_stmt->close();
+                        unset($product_stmt);
+                    }
                     ?>
                 </div>
                 <?php
             }
+        } else {
+            ?>
+            <div style="text-align: center; padding: 4rem 2rem; background: var(--primary-light); border-radius: var(--radius-md);">
+                <?php if ($has_product_filters): ?>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">No matching products found</h3>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem;">Try another search term or adjust the price range.</p>
+                    <a href="index.php#products" class="btn btn-primary">View All Products</a>
+                <?php else: ?>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">No products found</h3>
+                    <p style="color: var(--text-light);">Import <code>database.sql</code> again or run <code>seed_products.php</code> once to add the sample items.</p>
+                <?php endif; ?>
+            </div>
+            <?php
+        }
+
+        if (isset($cat_stmt)) {
+            $cat_stmt->close();
         }
         ?>
     </div>
