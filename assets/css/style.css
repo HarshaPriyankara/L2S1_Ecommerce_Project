@@ -338,6 +338,33 @@ footer .brand-name {
     margin-right: auto;
 }
 
+.hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.premium-hero .hero-story-btn {
+    padding: 1.2rem 3rem !important;
+    font-size: 1.1rem !important;
+    border-radius: 50px !important;
+    border: 2px solid rgba(255, 255, 255, 0.88) !important;
+    color: var(--white) !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 12px 30px rgba(15, 37, 27, 0.28);
+    backdrop-filter: blur(8px);
+}
+
+.premium-hero .hero-story-btn:hover,
+.premium-hero .hero-story-btn:focus-visible {
+    border-color: var(--accent-color) !important;
+    background: var(--white) !important;
+    color: var(--primary-dark) !important;
+    box-shadow: 0 12px 30px rgba(15, 37, 27, 0.35);
+}
+
 /* Category Headers */
 .category-header {
     margin-bottom: 3rem;
@@ -976,6 +1003,17 @@ footer {
     }
 
     .category-line {
+        width: 100%;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        max-width: 320px;
+        margin: 0 auto;
+    }
+
+    .hero-actions .btn {
         width: 100%;
     }
 }

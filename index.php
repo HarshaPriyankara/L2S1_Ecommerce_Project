@@ -20,7 +20,7 @@ include 'includes/header.php';
         </p>
         <div class="hero-actions reveal" style="animation-delay: 0.6s;">
             <a href="#products" class="btn btn-accent btn-lg" style="padding: 1.2rem 3rem; font-size: 1.1rem; border-radius: 50px;">Shop Collection</a>
-            <a href="#philosophy" class="btn btn-outline btn-lg" style="padding: 1.2rem 3rem; font-size: 1.1rem; border-radius: 50px; border-color: white; color: white; margin-left: 1rem;">Our Story</a>
+            <a href="#philosophy" class="btn btn-outline btn-lg hero-story-btn">Our Story</a>
         </div>
     </div>
 </section>
