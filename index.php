@@ -305,10 +305,11 @@ function bind_stmt_params($stmt, $types, &$params) {
                                         <h3 class="product-title" style="font-size: 1.4rem; color: var(--primary-color); margin-bottom: 0.5rem; min-height: 3.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($row['name']); ?></h3>
                                         
                                         <?php
-                                        $rating_sql = "SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = " . $row['id'];
+                                        $rating_sql = "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count FROM reviews WHERE product_id = " . $row['id'];
                                         $rating_res = $conn->query($rating_sql);
                                         $rating_row = $rating_res->fetch_assoc();
                                         $avg = round($rating_row['avg_rating'] ?? 0, 1);
+                                        $review_count = (int) ($rating_row['review_count'] ?? 0);
                                         ?>
                                         <div class="rating-stars" style="color: #f39c12; margin: 0.5rem 0;">
                                             <?php
@@ -316,7 +317,9 @@ function bind_stmt_params($stmt, $types, &$params) {
                                                 echo ($i <= $avg) ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
                                             }
                                             ?>
-                                            <span style="color: #999; font-size: 0.8rem; margin-left: 5px;">(<?php echo number_format($avg, 1); ?>)</span>
+                                            <span style="color: #999; font-size: 0.8rem; margin-left: 5px;">
+                                                <?php echo $review_count > 0 ? number_format($avg, 1) . ' / 5 (' . $review_count . ')' : 'No reviews'; ?>
+                                            </span>
                                         </div>
 
                                         <p class="product-desc" style="margin-bottom: 2rem; color: #666; font-size: 0.95rem; flex: 1;">

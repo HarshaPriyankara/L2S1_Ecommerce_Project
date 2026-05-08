@@ -52,6 +52,7 @@ if (isset($_SESSION['cart'])) {
                                     <a href="add_product.php"><i class="fas fa-plus"></i> Add Product</a>
                                     <a href="admin_orders.php"><i class="fas fa-box"></i> Manage Orders</a>
                                     <a href="admin_users.php"><i class="fas fa-users"></i> Manage Users</a>
+                                    <a href="admin_reviews.php"><i class="fas fa-star-half-stroke"></i> Manage Reviews</a>
                                 </div>
                             </details>
                         </li>
