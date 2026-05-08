@@ -2,7 +2,7 @@
 $dbConfig = [
     'host' => getenv('DB_HOST') ?: '127.0.0.1',
     'username' => getenv('DB_USER') ?: 'root',
-    'password' => getenv('DB_PASS') ?: '',
+    'password' => getenv('DB_PASS') ?: 'Radee@7436',
     'database' => getenv('DB_NAME') ?: 'ayurveda_db',
     'port' => getenv('DB_PORT') ? (int) getenv('DB_PORT') : 3306,
 ];
