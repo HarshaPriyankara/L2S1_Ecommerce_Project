@@ -164,6 +164,12 @@ footer .brand-name {
     width: 100%;
 }
 
+.nav-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 2rem;
+}
+
 .btn {
     padding: 0.8rem 2rem;
     border-radius: 50px;

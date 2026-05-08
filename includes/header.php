@@ -37,15 +37,19 @@ if (isset($_SESSION['cart'])) {
                         <li><a href="add_product.php">Add Product</a></li>
                         <li><a href="admin.php">Dashboard</a></li>
                     <?php endif; ?>
-                    <li><a href="profile.php">Profile</a></li>
-                    <li><a href="wishlist.php">Wishlist</a></li>
-                    <li><a href="logout.php" class="btn btn-outline">Logout</a></li>
+                    <li class="nav-group account-actions">
+                        <a href="profile.php">Profile</a>
+                        <a href="logout.php" class="btn btn-outline">Logout</a>
+                    </li>
                 <?php else: ?>
                     <li><a href="login.php" class="btn btn-primary">Login</a></li>
                     <li><a href="register.php" class="btn btn-outline">Register</a></li>
                 <?php endif; ?>
                 
-                <li>
+                <li class="nav-group shopping-actions">
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <a href="wishlist.php">Wishlist</a>
+                    <?php endif; ?>
                     <a href="cart.php" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
                         <?php if($cart_count > 0): ?>
