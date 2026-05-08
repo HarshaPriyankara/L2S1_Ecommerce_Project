@@ -8,15 +8,66 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-if (isset($_GET['delete'])) {
-    $id = $_GET['delete'];
-    
-    $sql = "UPDATE products SET is_deleted = 1 WHERE id = $id";
-    if ($conn->query($sql) === TRUE) {
-        echo "<script>alert('Product deleted successfully'); window.location.href='admin.php';</script>";
+$message = '';
+$error = '';
+
+function product_stock_badge($stock_quantity) {
+    $stock_quantity = (int) $stock_quantity;
+    $class = $stock_quantity > 0 ? 'in-stock' : 'out-stock';
+    $label = $stock_quantity > 0 ? $stock_quantity . ' in stock' : 'Out of stock';
+
+    return "<span class='stock-badge $class'>$label</span>";
+}
+
+function render_product_row($row, $is_deleted = false) {
+    echo "<tr>";
+    echo "<td>" . (int) $row['id'] . "</td>";
+    echo "<td><img src='" . htmlspecialchars(product_image_path($row['image'])) . "' width='50' style='border-radius: 4px;'></td>";
+    echo "<td>" . htmlspecialchars($row['name']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['category']) . "</td>";
+    echo "<td>LKR " . number_format((float) $row['price'], 2) . "</td>";
+    echo "<td>" . product_stock_badge($row['stock_quantity']) . "</td>";
+    echo "<td>";
+    echo "<div class='admin-actions'>";
+
+    if ($is_deleted) {
+        echo "<a href='admin.php?restore=" . (int) $row['id'] . "#deleted-products' class='btn-outline' style='border-color: var(--success); color: var(--success); padding: 0.2rem 0.5rem; font-size: 0.9rem;' onclick='return confirm(\"Restore this product?\")'>Restore</a>";
     } else {
-        echo "<script>alert('Error deleting product');</script>";
+        echo "<a href='edit_product.php?id=" . (int) $row['id'] . "' class='btn-outline' style='padding: 0.2rem 0.5rem; font-size: 0.9rem;'>Edit</a>";
+        echo "<a href='admin.php?delete=" . (int) $row['id'] . "' class='btn-outline' style='border-color: var(--danger); color: var(--danger); padding: 0.2rem 0.5rem; font-size: 0.9rem;' onclick='return confirm(\"Move this product to deleted products?\")'>Delete</a>";
     }
+
+    echo "</div>";
+    echo "</td>";
+    echo "</tr>";
+}
+
+if (isset($_GET['delete'])) {
+    $id = (int) $_GET['delete'];
+    $stmt = $conn->prepare('UPDATE products SET is_deleted = 1 WHERE id = ?');
+    $stmt->bind_param('i', $id);
+
+    if ($stmt->execute()) {
+        $message = 'Product moved to deleted products.';
+    } else {
+        $error = 'Error deleting product.';
+    }
+
+    $stmt->close();
+}
+
+if (isset($_GET['restore'])) {
+    $id = (int) $_GET['restore'];
+    $stmt = $conn->prepare('UPDATE products SET is_deleted = 0 WHERE id = ?');
+    $stmt->bind_param('i', $id);
+
+    if ($stmt->execute()) {
+        $message = 'Product restored successfully.';
+    } else {
+        $error = 'Error restoring product.';
+    }
+
+    $stmt->close();
 }
 
 // Handle Reset Admin (Merged from fix_admin.php)
@@ -62,6 +113,26 @@ if (isset($_POST['reset_admin'])) {
         </div>
     </div>
 
+    <?php if ($message): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
+    <?php endif; ?>
+
+    <?php if ($error): ?>
+        <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
+
+    <div class="admin-product-tabs">
+        <a href="#active-products" class="btn btn-outline">Active Products</a>
+        <a href="#deleted-products" class="btn btn-outline">Deleted Products</a>
+    </div>
+
+    <div id="active-products" class="admin-table-section">
+        <div class="admin-section-heading">
+            <div>
+                <span class="eyebrow">Available in store</span>
+                <h3>Active Products</h3>
+            </div>
+        </div>
     <div class="table-container">
         <table>
             <thead>
@@ -83,20 +154,7 @@ if (isset($_POST['reset_admin'])) {
 
                 if ($result->num_rows > 0) {
                     while($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . $row['id'] . "</td>";
-                        echo "<td><img src='" . htmlspecialchars(product_image_path($row['image'])) . "' width='50' style='border-radius: 4px;'></td>";
-                        echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['category']) . "</td>";
-                        echo "<td>LKR " . number_format($row['price'], 2) . "</td>";
-                        echo "<td><span class='stock-badge " . ((int) $row['stock_quantity'] > 0 ? "in-stock" : "out-stock") . "'>" . ((int) $row['stock_quantity'] > 0 ? (int) $row['stock_quantity'] . " in stock" : "Out of stock") . "</span></td>";
-                        echo "<td>
-                                <div class='admin-actions'>
-                                    <a href='edit_product.php?id=" . $row['id'] . "' class='btn-outline' style='padding: 0.2rem 0.5rem; font-size: 0.9rem;'>Edit</a>
-                                    <a href='admin.php?delete=" . $row['id'] . "' class='btn-outline' style='border-color: var(--danger); color: var(--danger); padding: 0.2rem 0.5rem; font-size: 0.9rem;' onclick='return confirm(\"Are you sure?\")'>Delete</a>
-                                </div>
-                              </td>";
-                        echo "</tr>";
+                        render_product_row($row, false);
                     }
                 } else {
                     echo "<tr><td colspan='7' style='text-align:center;'>No products found.</td></tr>";
@@ -104,6 +162,45 @@ if (isset($_POST['reset_admin'])) {
                 ?>
             </tbody>
         </table>
+    </div>
+    </div>
+
+    <div id="deleted-products" class="admin-table-section">
+        <div class="admin-section-heading">
+            <div>
+                <span class="eyebrow">Hidden from store</span>
+                <h3>Deleted Products</h3>
+            </div>
+        </div>
+        <div class="table-container table-container-muted">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $deleted_sql = "SELECT * FROM products WHERE is_deleted = 1 ORDER BY id DESC";
+                    $deleted_result = $conn->query($deleted_sql);
+
+                    if ($deleted_result->num_rows > 0) {
+                        while ($row = $deleted_result->fetch_assoc()) {
+                            render_product_row($row, true);
+                        }
+                    } else {
+                        echo "<tr><td colspan='7' style='text-align:center;'>No deleted products found.</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

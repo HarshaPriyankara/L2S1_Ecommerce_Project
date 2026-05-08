@@ -1705,6 +1705,41 @@ footer .brand-name {
     overflow-x: auto;
 }
 
+.table-container-muted {
+    background: #fbfcfb;
+}
+
+.admin-product-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.admin-product-tabs .btn {
+    border-radius: 10px !important;
+    min-height: 44px;
+    padding: 0.7rem 1.4rem !important;
+}
+
+.admin-table-section {
+    margin-bottom: 3rem;
+}
+
+.admin-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-section-heading h3 {
+    color: var(--primary-dark);
+    font-size: 1.45rem;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
