@@ -51,6 +51,7 @@ $result = $conn->query($sql);
                             <div style="display: flex; gap: 0.5rem;">
                                 <form action="cart.php" method="POST" style="display: inline;">
                                     <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
+                                    <input type="hidden" name="redirect_to" value="wishlist.php">
                                     <button type="submit" name="add_to_cart" class="btn btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">
                                         Add to Cart
                                     </button>

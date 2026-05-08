@@ -66,6 +66,6 @@ function product_image_path($filename) {
         return 'uploads/' . rawurlencode($filename);
     }
 
-    return 'assets/images/divisarana-logo-small.png';
+    return 'assets/images/ayurora-logo-small.png';
 }
 ?>

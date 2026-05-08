@@ -639,6 +639,71 @@ footer .brand-name {
     font-weight: 700;
 }
 
+.cart-toast {
+    position: fixed;
+    top: 105px;
+    right: 24px;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    max-width: min(420px, calc(100vw - 32px));
+    padding: 1rem 1.2rem;
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    box-shadow: 0 18px 45px rgba(15, 37, 27, 0.18);
+    color: var(--primary-dark);
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.cart-toast.is-hiding {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+}
+
+.cart-toast::before {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: var(--white);
+    flex: 0 0 auto;
+}
+
+.cart-toast div {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.cart-toast strong {
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+.cart-toast span {
+    color: var(--text-light);
+    font-size: 0.86rem;
+    line-height: 1.35;
+}
+
+.cart-toast a {
+    flex: 0 0 auto;
+    color: var(--primary-color);
+    font-size: 0.86rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
 /* Hero Section */
 .hero {
     background: linear-gradient(rgba(46, 125, 50, 0.1), rgba(46, 125, 50, 0.05)), url('../images/hero-bg.jpg');
@@ -1015,6 +1080,13 @@ footer {
 
     .hero-actions .btn {
         width: 100%;
+    }
+
+    .cart-toast {
+        top: auto;
+        right: 16px;
+        bottom: 16px;
+        align-items: flex-start;
     }
 }
 

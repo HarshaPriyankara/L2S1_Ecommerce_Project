@@ -1,24 +1,92 @@
 <?php
 include 'includes/db.php';
-include 'includes/header.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+function append_query_param($url, $key, $value) {
+    $parts = parse_url($url);
+
+    if ($parts === false || isset($parts['host'])) {
+        return 'index.php';
+    }
+
+    $path = $parts['path'] ?? 'index.php';
+    $query = [];
+
+    if (!empty($parts['query'])) {
+        parse_str($parts['query'], $query);
+    }
+
+    $query[$key] = $value;
+    $newUrl = $path . '?' . http_build_query($query);
+
+    if (!empty($parts['fragment'])) {
+        $newUrl .= '#' . $parts['fragment'];
+    }
+
+    return $newUrl;
+}
+
+function cart_return_url() {
+    $fallback = 'index.php';
+    $returnUrl = $_POST['redirect_to'] ?? $_SERVER['HTTP_REFERER'] ?? $fallback;
+
+    if (strpos($returnUrl, '://') !== false) {
+        $returnUrl = $fallback;
+    }
+
+    $path = parse_url($returnUrl, PHP_URL_PATH) ?: '';
+    if (strpos($returnUrl, '#') === false && (basename($path) === 'index.php' || $path === '' || $path === '/')) {
+        $returnUrl = 'index.php#products';
+    }
+
+    return append_query_param($returnUrl, 'cart_added', '1');
+}
+
+function cart_item_count() {
+    $count = 0;
+
+    if (isset($_SESSION['cart'])) {
+        foreach ($_SESSION['cart'] as $quantity) {
+            $count += (int) $quantity;
+        }
+    }
+
+    return $count;
+}
+
+function is_ajax_request() {
+    return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+}
 
 // Handle Add to Cart
 if (isset($_POST['add_to_cart'])) {
-    $product_id = $_POST['product_id'];
+    $product_id = (int) $_POST['product_id'];
     $quantity = 1; // Default quantity
 
     if (!isset($_SESSION['cart'])) {
         $_SESSION['cart'] = [];
     }
 
-    if (isset($_SESSION['cart'][$product_id])) {
+    if ($product_id > 0 && isset($_SESSION['cart'][$product_id])) {
         $_SESSION['cart'][$product_id] += $quantity;
-    } else {
+    } elseif ($product_id > 0) {
         $_SESSION['cart'][$product_id] = $quantity;
     }
-    
-    // Redirect to prevent form resubmission
-    echo "<script>window.location.href='cart.php';</script>";
+
+    if (is_ajax_request()) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'cart_count' => cart_item_count(),
+            'message' => 'Added to cart',
+        ]);
+        exit();
+    }
+
+    header('Location: ' . cart_return_url());
     exit();
 }
 
@@ -26,7 +94,7 @@ if (isset($_POST['add_to_cart'])) {
 if (isset($_GET['remove'])) {
     $id_to_remove = $_GET['remove'];
     unset($_SESSION['cart'][$id_to_remove]);
-    echo "<script>window.location.href='cart.php';</script>";
+    header('Location: cart.php');
     exit();
 }
 
@@ -39,9 +107,11 @@ if (isset($_POST['update_cart'])) {
             $_SESSION['cart'][$pid] = $qty;
         }
     }
-    echo "<script>window.location.href='cart.php';</script>";
+    header('Location: cart.php');
     exit();
 }
+
+include 'includes/header.php';
 ?>
 
 <div class="container">

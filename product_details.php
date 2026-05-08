@@ -65,6 +65,7 @@ $reviews_result = $conn->query($reviews_sql);
             <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
                 <form action="cart.php" method="POST" style="flex: 1;">
                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                    <input type="hidden" name="redirect_to" value="product_details.php?id=<?php echo $product['id']; ?>">
                     <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 100%;">
                         <i class="fas fa-cart-plus"></i> Add to Cart
                     </button>

@@ -34,5 +34,93 @@
             <p>&copy; <?php echo date('Y'); ?> AYURORA. Crafted for Wellness.</p>
         </div>
     </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var cartToastTimer;
+
+            function showCartToast() {
+                var toast = document.querySelector('.cart-toast');
+
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.className = 'cart-toast';
+                    toast.setAttribute('role', 'status');
+                    toast.setAttribute('aria-live', 'polite');
+                    toast.innerHTML = '<div><strong>Added to cart</strong><span>You can keep shopping or view your cart when ready.</span></div><a href="cart.php">View Cart</a>';
+                    document.body.appendChild(toast);
+                }
+
+                toast.classList.remove('is-hiding');
+                toast.classList.add('is-visible');
+                window.clearTimeout(cartToastTimer);
+                cartToastTimer = window.setTimeout(function () {
+                    toast.classList.add('is-hiding');
+                }, 3500);
+            }
+
+            function updateCartCount(count) {
+                var cartIcon = document.querySelector('.cart-icon');
+                if (!cartIcon) {
+                    return;
+                }
+
+                var badge = cartIcon.querySelector('.cart-count');
+
+                if (count > 0 && !badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'cart-count';
+                    cartIcon.appendChild(badge);
+                }
+
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count > 0 ? 'flex' : 'none';
+                }
+            }
+
+            document.querySelectorAll('form[action="cart.php"]').forEach(function (form) {
+                if (!form.querySelector('[name="add_to_cart"]')) {
+                    return;
+                }
+
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    var submitter = event.submitter || form.querySelector('[name="add_to_cart"]');
+                    var formData = new FormData(form);
+
+                    if (submitter && submitter.name) {
+                        formData.append(submitter.name, submitter.value || '1');
+                    }
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('Cart request failed');
+                            }
+
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            if (!data.success) {
+                                throw new Error('Cart update failed');
+                            }
+
+                            updateCartCount(parseInt(data.cart_count, 10) || 0);
+                            showCartToast();
+                        })
+                        .catch(function () {
+                            form.submit();
+                        });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

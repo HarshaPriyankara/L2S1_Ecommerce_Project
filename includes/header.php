@@ -58,3 +58,12 @@ if (isset($_SESSION['cart'])) {
     
     <!-- Main Content Wrapper -->
     <main class="container">
+        <?php if (isset($_GET['cart_added']) && $_GET['cart_added'] === '1'): ?>
+            <div class="cart-toast" role="status" aria-live="polite">
+                <div>
+                    <strong>Added to cart</strong>
+                    <span>You can keep shopping or view your cart when ready.</span>
+                </div>
+                <a href="cart.php">View Cart</a>
+            </div>
+        <?php endif; ?>
