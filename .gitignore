@@ -13,3 +13,5 @@ Thumbs.db
 # Locally uploaded admin files usually start with a timestamp.
 # Keep the sample product images in git so team members can see products.
 uploads/[0-9]*_*
+
+includes/db.php
