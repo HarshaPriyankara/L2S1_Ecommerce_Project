@@ -893,6 +893,22 @@ footer .brand-name {
     overflow-wrap: anywhere;
 }
 
+.profile-container {
+    max-width: 560px;
+}
+
+.profile-divider {
+    height: 1px;
+    background: #e8ece9;
+    margin: 2rem 0;
+}
+
+.profile-subtitle {
+    color: var(--primary-dark);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
 /* Admin Table */
 .table-container {
     background: var(--white);

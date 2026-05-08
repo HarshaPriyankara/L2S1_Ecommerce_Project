@@ -37,6 +37,7 @@ if (isset($_SESSION['cart'])) {
                         <li><a href="add_product.php">Add Product</a></li>
                         <li><a href="admin.php">Dashboard</a></li>
                     <?php endif; ?>
+                    <li><a href="profile.php">Profile</a></li>
                     <li><a href="wishlist.php">Wishlist</a></li>
                     <li><a href="logout.php" class="btn btn-outline">Logout</a></li>
                 <?php else: ?>
