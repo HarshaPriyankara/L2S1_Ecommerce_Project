@@ -1194,6 +1194,11 @@ footer .brand-name {
     margin: 0 auto 4rem;
 }
 
+.admin-users-page {
+    max-width: 1120px;
+    margin: 0 auto 4rem;
+}
+
 .order-confirmation-page {
     max-width: 980px;
     margin: 0 auto 4rem;
@@ -1385,6 +1390,11 @@ footer .brand-name {
     color: #9a7418;
 }
 
+.status-active {
+    background: rgba(0, 184, 148, 0.12);
+    color: var(--success);
+}
+
 .status-cancelled {
     background: rgba(214, 48, 49, 0.1);
     color: var(--danger);
@@ -1532,6 +1542,38 @@ th {
     align-items: center;
     gap: 0.6rem;
     flex-wrap: wrap;
+}
+
+.admin-user-meta {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.admin-user-form {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) auto;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 360px;
+}
+
+.admin-user-form .form-control {
+    min-height: 44px;
+    padding: 0.55rem 0.75rem;
+}
+
+.admin-user-form .btn {
+    min-height: 44px;
+    padding: 0.55rem 1rem;
+}
+
+@media (max-width: 720px) {
+    .admin-user-form {
+        grid-template-columns: 1fr;
+        min-width: 220px;
+    }
 }
 
 /* Alerts */

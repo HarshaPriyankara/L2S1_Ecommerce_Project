@@ -43,6 +43,7 @@ if (isset($_SESSION['cart'])) {
                         <li><a href="add_product.php">Add Product</a></li>
                         <li><a href="admin.php">Dashboard</a></li>
                         <li><a href="admin_orders.php">Manage Orders</a></li>
+                        <li><a href="admin_users.php">Manage Users</a></li>
                     <?php endif; ?>
                     <li class="nav-group account-actions">
                         <a href="profile.php">Profile</a>

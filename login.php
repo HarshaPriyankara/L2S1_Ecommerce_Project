@@ -13,7 +13,9 @@ if (isset($_POST['login'])) {
 
     if ($result->num_rows == 1) {
         $user = $result->fetch_assoc();
-        if (password_verify($password, $user['password'])) {
+        if (isset($user['is_active']) && (int) $user['is_active'] !== 1) {
+            $error = "This account is inactive. Please contact admin.";
+        } elseif (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['role'] = $user['role'];
