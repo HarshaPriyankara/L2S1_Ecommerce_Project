@@ -40,10 +40,21 @@ if (isset($_SESSION['cart'])) {
                 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if ($_SESSION['role'] === 'admin'): ?>
-                        <li><a href="add_product.php">Add Product</a></li>
-                        <li><a href="admin.php">Dashboard</a></li>
-                        <li><a href="admin_orders.php">Manage Orders</a></li>
-                        <li><a href="admin_users.php">Manage Users</a></li>
+                        <li class="admin-menu-item">
+                            <details class="admin-menu">
+                                <summary>
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Admin</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </summary>
+                                <div class="admin-menu-panel">
+                                    <a href="admin.php"><i class="fas fa-gauge-high"></i> Dashboard</a>
+                                    <a href="add_product.php"><i class="fas fa-plus"></i> Add Product</a>
+                                    <a href="admin_orders.php"><i class="fas fa-box"></i> Manage Orders</a>
+                                    <a href="admin_users.php"><i class="fas fa-users"></i> Manage Users</a>
+                                </div>
+                            </details>
+                        </li>
                     <?php endif; ?>
                     <li class="nav-group account-actions">
                         <a href="profile.php">Profile</a>
