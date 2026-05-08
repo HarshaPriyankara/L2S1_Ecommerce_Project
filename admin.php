@@ -100,6 +100,39 @@ if (isset($_POST['reset_admin'])) {
         }
     }
 }
+
+$summary = [
+    'total_products' => 0,
+    'total_users' => 0,
+    'total_orders' => 0,
+    'pending_orders' => 0,
+    'revenue' => 0,
+];
+
+$summary_result = $conn->query("SELECT COUNT(*) AS total_products FROM products WHERE is_deleted = 0");
+if ($summary_result) {
+    $summary['total_products'] = (int) $summary_result->fetch_assoc()['total_products'];
+}
+
+$summary_result = $conn->query("SELECT COUNT(*) AS total_users FROM users");
+if ($summary_result) {
+    $summary['total_users'] = (int) $summary_result->fetch_assoc()['total_users'];
+}
+
+$summary_result = $conn->query("SELECT COUNT(*) AS total_orders FROM orders");
+if ($summary_result) {
+    $summary['total_orders'] = (int) $summary_result->fetch_assoc()['total_orders'];
+}
+
+$summary_result = $conn->query("SELECT COUNT(*) AS pending_orders FROM orders WHERE status = 'pending'");
+if ($summary_result) {
+    $summary['pending_orders'] = (int) $summary_result->fetch_assoc()['pending_orders'];
+}
+
+$summary_result = $conn->query("SELECT COALESCE(SUM(total_price), 0) AS revenue FROM orders WHERE status = 'completed'");
+if ($summary_result) {
+    $summary['revenue'] = (float) $summary_result->fetch_assoc()['revenue'];
+}
 ?>
 
 <div class="container">
@@ -120,6 +153,44 @@ if (isset($_POST['reset_admin'])) {
     <?php if ($error): ?>
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
+
+    <div class="admin-summary-grid">
+        <a href="#active-products" class="admin-summary-card">
+            <span class="admin-summary-icon"><i class="fas fa-boxes-stacked"></i></span>
+            <div>
+                <span>Total Products</span>
+                <strong><?php echo number_format($summary['total_products']); ?></strong>
+            </div>
+        </a>
+        <a href="admin_users.php" class="admin-summary-card">
+            <span class="admin-summary-icon"><i class="fas fa-users"></i></span>
+            <div>
+                <span>Total Users</span>
+                <strong><?php echo number_format($summary['total_users']); ?></strong>
+            </div>
+        </a>
+        <a href="admin_orders.php" class="admin-summary-card">
+            <span class="admin-summary-icon"><i class="fas fa-receipt"></i></span>
+            <div>
+                <span>Total Orders</span>
+                <strong><?php echo number_format($summary['total_orders']); ?></strong>
+            </div>
+        </a>
+        <a href="admin_orders.php" class="admin-summary-card">
+            <span class="admin-summary-icon admin-summary-warning"><i class="fas fa-clock"></i></span>
+            <div>
+                <span>Pending Orders</span>
+                <strong><?php echo number_format($summary['pending_orders']); ?></strong>
+            </div>
+        </a>
+        <a href="admin_orders.php" class="admin-summary-card admin-summary-revenue">
+            <span class="admin-summary-icon"><i class="fas fa-coins"></i></span>
+            <div>
+                <span>Revenue</span>
+                <strong>LKR <?php echo number_format($summary['revenue'], 2); ?></strong>
+            </div>
+        </a>
+    </div>
 
     <div class="admin-product-tabs">
         <a href="#active-products" class="btn btn-outline">Active Products</a>
