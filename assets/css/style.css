@@ -1628,6 +1628,81 @@ footer .brand-name {
     display: grid;
 }
 
+.order-status-tracker {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 1rem 1.6rem;
+    border-bottom: 1px solid #f0f2f0;
+    background: #fffdf8;
+}
+
+.status-step {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.status-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(1.8rem + 0.55rem);
+    right: -0.75rem;
+    height: 2px;
+    background: #e4e9e5;
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
+.status-dot {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e4e9e5;
+    color: var(--text-light);
+    font-size: 0.62rem;
+    flex: 0 0 auto;
+}
+
+.status-step.is-complete,
+.status-step.is-current {
+    color: var(--primary-color);
+}
+
+.status-step.is-complete .status-dot,
+.status-step.is-current .status-dot {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+.status-step.is-complete::after {
+    background: var(--primary-color);
+}
+
+.status-step.is-cancelled-step {
+    color: var(--danger);
+}
+
+.status-step.is-cancelled-step .status-dot {
+    background: var(--danger);
+    color: var(--white);
+}
+
+.order-status-tracker.is-cancelled {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .order-item {
     display: grid;
     grid-template-columns: 64px minmax(0, 1fr) auto;
@@ -1728,6 +1803,19 @@ footer .brand-name {
 
     .order-status-form {
         grid-template-columns: 1fr;
+    }
+
+    .order-status-tracker,
+    .order-status-tracker.is-cancelled {
+        grid-template-columns: 1fr;
+    }
+
+    .status-step:not(:last-child)::after {
+        top: calc(100% + 0.35rem);
+        left: 15px;
+        right: auto;
+        width: 2px;
+        height: 0.75rem;
     }
 
     .confirmation-meta {

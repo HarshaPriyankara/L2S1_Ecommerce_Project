@@ -1,5 +1,6 @@
 <?php
 include 'includes/db.php';
+include 'includes/order_status.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -131,6 +132,11 @@ include 'includes/header.php';
             <a href="order_history.php" class="btn btn-primary">View Order History</a>
             <a href="index.php#products" class="btn btn-outline">Continue Shopping</a>
         </div>
+    </section>
+
+    <section class="shipping-summary">
+        <h3>Order Progress</h3>
+        <?php render_order_status_tracker($order['status']); ?>
     </section>
 
     <section class="shipping-summary">

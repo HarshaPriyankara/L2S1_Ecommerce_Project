@@ -1,5 +1,6 @@
 <?php
 include 'includes/db.php';
+include 'includes/order_status.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -136,6 +137,8 @@ include 'includes/header.php';
                             <strong>LKR <?php echo number_format((float) $order['total_price'], 2); ?></strong>
                         </div>
                     </div>
+
+                    <?php render_order_status_tracker($order['status']); ?>
 
                     <div class="admin-delivery-details">
                         <div>
