@@ -16,6 +16,18 @@ $error = '';
 
 // Keep existing local databases compatible with the new processing status.
 $conn->query("ALTER TABLE orders MODIFY status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending'");
+$order_columns = [
+    'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
+    'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
+    'delivery_notes' => "ALTER TABLE orders ADD COLUMN delivery_notes TEXT NULL AFTER phone",
+];
+
+foreach ($order_columns as $column => $alter_sql) {
+    $column_check = $conn->query("SHOW COLUMNS FROM orders LIKE '$column'");
+    if ($column_check && $column_check->num_rows === 0) {
+        $conn->query($alter_sql);
+    }
+}
 
 if (isset($_POST['update_status'])) {
     $order_id = (int) ($_POST['order_id'] ?? 0);
@@ -39,7 +51,7 @@ if (isset($_POST['update_status'])) {
 
 $orders = [];
 $order_sql = "
-    SELECT o.id, o.total_price, o.status, o.created_at, u.name AS customer_name, u.email AS customer_email
+    SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.created_at, u.name AS customer_name, u.email AS customer_email
     FROM orders o
     INNER JOIN users u ON o.user_id = u.id
     ORDER BY o.created_at DESC, o.id DESC
@@ -119,6 +131,21 @@ include 'includes/header.php';
                                 <?php echo htmlspecialchars(ucfirst($order['status'])); ?>
                             </span>
                             <strong>LKR <?php echo number_format((float) $order['total_price'], 2); ?></strong>
+                        </div>
+                    </div>
+
+                    <div class="admin-delivery-details">
+                        <div>
+                            <span>Shipping Address</span>
+                            <strong><?php echo nl2br(htmlspecialchars($order['shipping_address'] ?: 'Not provided')); ?></strong>
+                        </div>
+                        <div>
+                            <span>Phone</span>
+                            <strong><?php echo htmlspecialchars($order['phone'] ?: 'Not provided'); ?></strong>
+                        </div>
+                        <div>
+                            <span>Delivery Notes</span>
+                            <strong><?php echo nl2br(htmlspecialchars($order['delivery_notes'] ?: 'No notes')); ?></strong>
                         </div>
                     </div>
 

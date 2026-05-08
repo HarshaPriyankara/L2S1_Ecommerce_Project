@@ -14,6 +14,19 @@ $order_id = isset($_GET['order_id']) ? (int) $_GET['order_id'] : 0;
 $user_id = (int) $_SESSION['user_id'];
 $is_admin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
+$order_columns = [
+    'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
+    'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
+    'delivery_notes' => "ALTER TABLE orders ADD COLUMN delivery_notes TEXT NULL AFTER phone",
+];
+
+foreach ($order_columns as $column => $alter_sql) {
+    $column_check = $conn->query("SHOW COLUMNS FROM orders LIKE '$column'");
+    if ($column_check && $column_check->num_rows === 0) {
+        $conn->query($alter_sql);
+    }
+}
+
 if ($order_id <= 0) {
     header('Location: order_history.php');
     exit();
@@ -21,7 +34,7 @@ if ($order_id <= 0) {
 
 if ($is_admin) {
     $order_stmt = $conn->prepare(
-        'SELECT o.id, o.total_price, o.status, o.created_at, u.name AS customer_name, u.email AS customer_email
+        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.created_at, u.name AS customer_name, u.email AS customer_email
          FROM orders o
          INNER JOIN users u ON o.user_id = u.id
          WHERE o.id = ?
@@ -30,7 +43,7 @@ if ($is_admin) {
     $order_stmt->bind_param('i', $order_id);
 } else {
     $order_stmt = $conn->prepare(
-        'SELECT o.id, o.total_price, o.status, o.created_at, u.name AS customer_name, u.email AS customer_email
+        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.created_at, u.name AS customer_name, u.email AS customer_email
          FROM orders o
          INNER JOIN users u ON o.user_id = u.id
          WHERE o.id = ? AND o.user_id = ?
@@ -101,6 +114,24 @@ include 'includes/header.php';
         <div class="confirmation-actions">
             <a href="order_history.php" class="btn btn-primary">View Order History</a>
             <a href="index.php#products" class="btn btn-outline">Continue Shopping</a>
+        </div>
+    </section>
+
+    <section class="shipping-summary">
+        <h3>Delivery Details</h3>
+        <div class="shipping-summary-grid">
+            <div>
+                <span>Shipping Address</span>
+                <strong><?php echo nl2br(htmlspecialchars($order['shipping_address'] ?: 'Not provided')); ?></strong>
+            </div>
+            <div>
+                <span>Phone Number</span>
+                <strong><?php echo htmlspecialchars($order['phone'] ?: 'Not provided'); ?></strong>
+            </div>
+            <div>
+                <span>Delivery Notes</span>
+                <strong><?php echo nl2br(htmlspecialchars($order['delivery_notes'] ?: 'No notes')); ?></strong>
+            </div>
         </div>
     </section>
 

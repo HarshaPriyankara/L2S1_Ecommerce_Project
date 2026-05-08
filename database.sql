@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS orders (
     user_id INT NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL,
     status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending',
+    shipping_address TEXT NULL,
+    phone VARCHAR(30) NULL,
+    delivery_notes TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
