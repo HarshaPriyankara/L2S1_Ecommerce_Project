@@ -1771,6 +1771,40 @@ th {
     font-size: 0.85rem;
 }
 
+.admin-user-filter {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid rgba(27, 60, 45, 0.08);
+    border-radius: var(--radius-sm);
+    background: #fbfcfb;
+    box-shadow: 0 16px 42px rgba(27, 60, 45, 0.08);
+    flex-wrap: wrap;
+}
+
+.admin-user-filter label {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: var(--primary-dark);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-user-filter .form-control {
+    min-height: 52px;
+    border-radius: 10px;
+}
+
+.admin-user-detail-line {
+    margin-top: -2rem;
+    color: var(--text-light);
+    font-weight: 600;
+}
+
 .admin-user-form {
     display: grid;
     grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) auto;

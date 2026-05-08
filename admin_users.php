@@ -14,6 +14,10 @@ $current_user_id = (int) $_SESSION['user_id'];
 $allowed_roles = ['customer', 'admin'];
 $message = '';
 $error = '';
+$search = trim($_GET['search'] ?? '');
+$role_filter = $_GET['role'] ?? '';
+$status_filter = $_GET['status'] ?? '';
+$has_user_filters = $search !== '' || $role_filter !== '' || $status_filter !== '';
 
 $column_check = $conn->query("SHOW COLUMNS FROM users LIKE 'is_active'");
 if ($column_check && $column_check->num_rows === 0) {
@@ -44,18 +48,53 @@ if (isset($_POST['update_user'])) {
 }
 
 $users = [];
+$where = [];
+$types = '';
+$params = [];
+
+if ($search !== '') {
+    $where[] = '(u.name LIKE ? OR u.email LIKE ?)';
+    $types .= 'ss';
+    $search_like = '%' . $search . '%';
+    $params[] = $search_like;
+    $params[] = $search_like;
+}
+
+if (in_array($role_filter, $allowed_roles, true)) {
+    $where[] = 'u.role = ?';
+    $types .= 's';
+    $params[] = $role_filter;
+}
+
+if ($status_filter === 'active' || $status_filter === 'inactive') {
+    $where[] = 'u.is_active = ?';
+    $types .= 'i';
+    $params[] = $status_filter === 'active' ? 1 : 0;
+}
+
+$where_sql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 $users_sql = "
     SELECT u.id, u.name, u.email, u.role, u.is_active, u.created_at, COUNT(o.id) AS order_count
     FROM users u
     LEFT JOIN orders o ON o.user_id = u.id
+    $where_sql
     GROUP BY u.id, u.name, u.email, u.role, u.is_active, u.created_at
     ORDER BY u.created_at DESC, u.id DESC
 ";
-$users_result = $conn->query($users_sql);
+$users_stmt = $conn->prepare($users_sql);
+
+if ($types !== '') {
+    $users_stmt->bind_param($types, ...$params);
+}
+
+$users_stmt->execute();
+$users_result = $users_stmt->get_result();
 
 while ($user = $users_result->fetch_assoc()) {
     $users[] = $user;
 }
+
+$users_stmt->close();
 
 include 'includes/header.php';
 ?>
@@ -77,12 +116,49 @@ include 'includes/header.php';
         <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
+    <form class="admin-user-filter" method="GET" action="admin_users.php">
+        <div class="product-search-main">
+            <label>Search Users</label>
+            <div class="product-search-field">
+                <i class="fas fa-search"></i>
+                <input type="search" name="search" placeholder="Name or email" value="<?php echo htmlspecialchars($search); ?>">
+            </div>
+        </div>
+        <div class="category-filter-field">
+            <label>Role</label>
+            <select name="role" class="form-control">
+                <option value="">All Roles</option>
+                <?php foreach ($allowed_roles as $role): ?>
+                    <option value="<?php echo htmlspecialchars($role); ?>" <?php echo $role_filter === $role ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars(ucfirst($role)); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="category-filter-field">
+            <label>Status</label>
+            <select name="status" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
+                <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+            </select>
+        </div>
+        <div class="product-search-actions">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Apply</button>
+            <?php if ($has_user_filters): ?>
+                <a href="admin_users.php" class="btn btn-outline">Clear</a>
+            <?php endif; ?>
+        </div>
+    </form>
+
     <div class="table-container">
         <table>
             <thead>
                 <tr>
                     <th>User</th>
                     <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
                     <th>Orders</th>
                     <th>Joined</th>
                     <th>Manage</th>
@@ -91,7 +167,7 @@ include 'includes/header.php';
             <tbody>
                 <?php if (empty($users)): ?>
                     <tr>
-                        <td colspan="5" style="text-align: center;">No users found.</td>
+                        <td colspan="7" style="text-align: center;">No users found.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($users as $user): ?>
@@ -107,7 +183,17 @@ include 'includes/header.php';
                                 </span>
                             </td>
                             <td><?php echo htmlspecialchars($user['email']); ?></td>
-                            <td><?php echo (int) $user['order_count']; ?></td>
+                            <td><?php echo htmlspecialchars(ucfirst($user['role'])); ?></td>
+                            <td>
+                                <span class="stock-badge <?php echo (int) $user['is_active'] === 1 ? 'in-stock' : 'out-stock'; ?>">
+                                    <?php echo (int) $user['is_active'] === 1 ? 'Active' : 'Inactive'; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="admin_user_orders.php?user_id=<?php echo (int) $user['id']; ?>" class="auth-link">
+                                    <?php echo (int) $user['order_count']; ?> orders
+                                </a>
+                            </td>
                             <td><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
                             <td>
                                 <form method="POST" action="admin_users.php" class="admin-user-form">
