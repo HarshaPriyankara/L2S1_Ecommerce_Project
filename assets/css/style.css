@@ -856,6 +856,43 @@ footer .brand-name {
     box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
 }
 
+.auth-link {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.auth-helper {
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    text-align: center;
+}
+
+.reset-dev-box {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px dashed var(--accent-color);
+    border-radius: var(--radius-sm);
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.reset-dev-box strong {
+    display: block;
+    margin-bottom: 0.4rem;
+}
+
+.reset-dev-box p {
+    margin-bottom: 0.6rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.reset-dev-box a {
+    color: var(--primary-color);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
 /* Admin Table */
 .table-container {
     background: var(--white);

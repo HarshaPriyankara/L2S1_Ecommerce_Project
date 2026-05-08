@@ -52,6 +52,9 @@ if (isset($_POST['login'])) {
         </div>
         <button type="submit" name="login" class="btn btn-primary" style="width: 100%;">Login</button>
     </form>
+    <p style="margin-top: 1rem; text-align: center;">
+        <a href="forgot_password.php" class="auth-link">Forgot password?</a>
+    </p>
     <p style="margin-top: 1rem; text-align: center;">Don't have an account? <a href="register.php" style="color: var(--primary-color); font-weight: 600;">Register here</a></p>
 </div>
 
