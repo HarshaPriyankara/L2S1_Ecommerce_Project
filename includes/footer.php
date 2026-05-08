@@ -38,6 +38,48 @@
         document.addEventListener('DOMContentLoaded', function () {
             var cartToastTimer;
 
+            function setupPriceSlider() {
+                var minSlider = document.getElementById('min_price_slider');
+                var maxSlider = document.getElementById('max_price_slider');
+                var minValue = document.getElementById('min_price_value');
+                var maxValue = document.getElementById('max_price_value');
+                var minLabel = document.getElementById('min_price_label');
+                var maxLabel = document.getElementById('max_price_label');
+
+                if (!minSlider || !maxSlider || !minValue || !maxValue || !minLabel || !maxLabel) {
+                    return;
+                }
+
+                function formatPrice(value) {
+                    return 'LKR ' + Number(value).toLocaleString();
+                }
+
+                function syncPriceSlider() {
+                    var min = parseInt(minSlider.value, 10);
+                    var max = parseInt(maxSlider.value, 10);
+
+                    if (min > max) {
+                        var active = document.activeElement === minSlider ? 'min' : 'max';
+                        if (active === 'min') {
+                            max = min;
+                            maxSlider.value = max;
+                        } else {
+                            min = max;
+                            minSlider.value = min;
+                        }
+                    }
+
+                    minValue.value = min;
+                    maxValue.value = max;
+                    minLabel.textContent = formatPrice(min);
+                    maxLabel.textContent = formatPrice(max);
+                }
+
+                minSlider.addEventListener('input', syncPriceSlider);
+                maxSlider.addEventListener('input', syncPriceSlider);
+                syncPriceSlider();
+            }
+
             function showCartToast() {
                 var toast = document.querySelector('.cart-toast');
 
@@ -120,6 +162,8 @@
                         });
                 });
             });
+
+            setupPriceSlider();
         });
     </script>
 </body>
