@@ -28,9 +28,36 @@ if (!$user) {
     exit();
 }
 
+$order_columns = [
+    'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
+    'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
+    'delivery_notes' => "ALTER TABLE orders ADD COLUMN delivery_notes TEXT NULL AFTER phone",
+    'delivery_method' => "ALTER TABLE orders ADD COLUMN delivery_method VARCHAR(50) NULL AFTER delivery_notes",
+    'delivery_fee' => "ALTER TABLE orders ADD COLUMN delivery_fee DECIMAL(10, 2) NOT NULL DEFAULT 0 AFTER delivery_method",
+    'payment_method' => "ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) NULL AFTER delivery_fee",
+];
+
+foreach ($order_columns as $column => $alter_sql) {
+    $column_check = $conn->query("SHOW COLUMNS FROM orders LIKE '$column'");
+    if ($column_check && $column_check->num_rows === 0) {
+        $conn->query($alter_sql);
+    }
+}
+
+$delivery_labels = [
+    'standard' => 'Standard Delivery',
+    'express' => 'Express Delivery',
+    'pickup' => 'Store Pickup',
+];
+$payment_labels = [
+    'card' => 'Card Payment',
+    'cod' => 'Cash on Delivery',
+    'bank_transfer' => 'Bank Transfer',
+];
+
 $orders = [];
 $order_stmt = $conn->prepare(
-    'SELECT id, total_price, status, shipping_address, phone, delivery_notes, created_at
+    'SELECT id, total_price, status, shipping_address, phone, delivery_notes, delivery_method, delivery_fee, payment_method, created_at
      FROM orders
      WHERE user_id = ?
      ORDER BY created_at DESC, id DESC'
@@ -122,6 +149,14 @@ include 'includes/header.php';
                         <div>
                             <span>Delivery Notes</span>
                             <strong><?php echo nl2br(htmlspecialchars($order['delivery_notes'] ?: 'No notes')); ?></strong>
+                        </div>
+                        <div>
+                            <span>Delivery Method</span>
+                            <strong><?php echo htmlspecialchars($delivery_labels[$order['delivery_method'] ?? ''] ?? 'Not provided'); ?><br><?php echo (float) $order['delivery_fee'] > 0 ? 'LKR ' . number_format((float) $order['delivery_fee'], 2) : 'Free'; ?></strong>
+                        </div>
+                        <div>
+                            <span>Payment Method</span>
+                            <strong><?php echo htmlspecialchars($payment_labels[$order['payment_method'] ?? ''] ?? 'Not provided'); ?></strong>
                         </div>
                     </div>
 

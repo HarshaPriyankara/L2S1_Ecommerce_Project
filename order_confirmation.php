@@ -18,6 +18,9 @@ $order_columns = [
     'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
     'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
     'delivery_notes' => "ALTER TABLE orders ADD COLUMN delivery_notes TEXT NULL AFTER phone",
+    'delivery_method' => "ALTER TABLE orders ADD COLUMN delivery_method VARCHAR(50) NULL AFTER delivery_notes",
+    'delivery_fee' => "ALTER TABLE orders ADD COLUMN delivery_fee DECIMAL(10, 2) NOT NULL DEFAULT 0 AFTER delivery_method",
+    'payment_method' => "ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) NULL AFTER delivery_fee",
 ];
 
 foreach ($order_columns as $column => $alter_sql) {
@@ -34,7 +37,7 @@ if ($order_id <= 0) {
 
 if ($is_admin) {
     $order_stmt = $conn->prepare(
-        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.created_at, u.name AS customer_name, u.email AS customer_email
+        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.delivery_method, o.delivery_fee, o.payment_method, o.created_at, u.name AS customer_name, u.email AS customer_email
          FROM orders o
          INNER JOIN users u ON o.user_id = u.id
          WHERE o.id = ?
@@ -43,7 +46,7 @@ if ($is_admin) {
     $order_stmt->bind_param('i', $order_id);
 } else {
     $order_stmt = $conn->prepare(
-        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.created_at, u.name AS customer_name, u.email AS customer_email
+        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.delivery_method, o.delivery_fee, o.payment_method, o.created_at, u.name AS customer_name, u.email AS customer_email
          FROM orders o
          INNER JOIN users u ON o.user_id = u.id
          WHERE o.id = ? AND o.user_id = ?
@@ -79,6 +82,19 @@ while ($item = $item_result->fetch_assoc()) {
 }
 
 $item_stmt->close();
+
+$delivery_labels = [
+    'standard' => 'Standard Delivery',
+    'express' => 'Express Delivery',
+    'pickup' => 'Store Pickup',
+];
+$payment_labels = [
+    'card' => 'Card Payment',
+    'cod' => 'Cash on Delivery',
+    'bank_transfer' => 'Bank Transfer',
+];
+$delivery_label = $delivery_labels[$order['delivery_method'] ?? ''] ?? 'Not provided';
+$payment_label = $payment_labels[$order['payment_method'] ?? ''] ?? 'Not provided';
 
 include 'includes/header.php';
 ?>
@@ -131,6 +147,14 @@ include 'includes/header.php';
             <div>
                 <span>Delivery Notes</span>
                 <strong><?php echo nl2br(htmlspecialchars($order['delivery_notes'] ?: 'No notes')); ?></strong>
+            </div>
+            <div>
+                <span>Delivery Method</span>
+                <strong><?php echo htmlspecialchars($delivery_label); ?><br><?php echo (float) $order['delivery_fee'] > 0 ? 'LKR ' . number_format((float) $order['delivery_fee'], 2) : 'Free'; ?></strong>
+            </div>
+            <div>
+                <span>Payment Method</span>
+                <strong><?php echo htmlspecialchars($payment_label); ?></strong>
             </div>
         </div>
     </section>

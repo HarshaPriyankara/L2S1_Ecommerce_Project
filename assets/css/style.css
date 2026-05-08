@@ -1419,8 +1419,52 @@ footer .brand-name {
 .shipping-summary-grid,
 .admin-delivery-details {
     display: grid;
-    grid-template-columns: 1.4fr 0.8fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
+}
+
+.checkout-options {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.checkout-option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.8rem;
+    padding: 0.95rem;
+    border: 1px solid #e0e8e2;
+    border-radius: 10px;
+    background: #fbfcfb;
+    cursor: pointer;
+}
+
+.checkout-option input {
+    margin-top: 0.25rem;
+    accent-color: var(--primary-color);
+}
+
+.checkout-option strong,
+.checkout-option small,
+.checkout-option em {
+    display: block;
+}
+
+.checkout-option strong {
+    color: var(--primary-dark);
+}
+
+.checkout-option small {
+    color: var(--text-light);
+    font-size: 0.84rem;
+}
+
+.checkout-option em {
+    margin-top: 0.25rem;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    font-style: normal;
+    font-weight: 800;
 }
 
 .shipping-summary-grid div,

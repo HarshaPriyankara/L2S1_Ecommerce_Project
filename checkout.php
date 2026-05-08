@@ -19,15 +19,43 @@ $message = '';
 $shipping_address = trim($_POST['shipping_address'] ?? '');
 $phone = trim($_POST['phone'] ?? '');
 $delivery_notes = trim($_POST['delivery_notes'] ?? '');
+$delivery_method = $_POST['delivery_method'] ?? 'standard';
+$payment_method = $_POST['payment_method'] ?? 'card';
 $cart_items = $_SESSION['cart'];
 $cart_products = [];
-$total = 0;
+$items_total = 0;
 $stock_error = '';
+
+$delivery_options = [
+    'standard' => ['label' => 'Standard Delivery', 'description' => 'Islandwide delivery within 3-5 business days.', 'fee' => 350],
+    'express' => ['label' => 'Express Delivery', 'description' => 'Priority delivery within 1-2 business days.', 'fee' => 750],
+    'pickup' => ['label' => 'Store Pickup', 'description' => 'Collect from AYURORA store when ready.', 'fee' => 0],
+];
+
+$payment_options = [
+    'card' => ['label' => 'Card Payment', 'description' => 'Use the mock card fields below for demo checkout.'],
+    'cod' => ['label' => 'Cash on Delivery', 'description' => 'Pay when your order arrives.'],
+    'bank_transfer' => ['label' => 'Bank Transfer', 'description' => 'Transfer after placing the order. Admin will verify payment.'],
+];
+
+if (!isset($delivery_options[$delivery_method])) {
+    $delivery_method = 'standard';
+}
+
+if (!isset($payment_options[$payment_method])) {
+    $payment_method = 'card';
+}
+
+$delivery_fee = (float) $delivery_options[$delivery_method]['fee'];
+$total = 0;
 
 $order_columns = [
     'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
     'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
     'delivery_notes' => "ALTER TABLE orders ADD COLUMN delivery_notes TEXT NULL AFTER phone",
+    'delivery_method' => "ALTER TABLE orders ADD COLUMN delivery_method VARCHAR(50) NULL AFTER delivery_notes",
+    'delivery_fee' => "ALTER TABLE orders ADD COLUMN delivery_fee DECIMAL(10, 2) NOT NULL DEFAULT 0 AFTER delivery_method",
+    'payment_method' => "ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) NULL AFTER delivery_fee",
 ];
 
 foreach ($order_columns as $column => $alter_sql) {
@@ -68,8 +96,10 @@ while ($product = $product_result->fetch_assoc()) {
     $product['quantity'] = $quantity;
     $product['subtotal'] = $subtotal;
     $cart_products[] = $product;
-    $total += $subtotal;
+    $items_total += $subtotal;
 }
+
+$total = $items_total + $delivery_fee;
 
 if (empty($cart_products)) {
     unset($_SESSION['cart']);
@@ -79,7 +109,7 @@ if (empty($cart_products)) {
 
 if (isset($_POST['place_order'])) {
     $user_id = (int) $_SESSION['user_id'];
-    $status = 'completed';
+    $status = $payment_method === 'card' ? 'completed' : 'pending';
 
     if ($stock_error !== '') {
         $message = 'Please update your cart. ' . $stock_error;
@@ -89,8 +119,8 @@ if (isset($_POST['place_order'])) {
         $message = 'Please enter a valid phone number.';
     } else {
         $conn->begin_transaction();
-        $order_stmt = $conn->prepare('INSERT INTO orders (user_id, total_price, status, shipping_address, phone, delivery_notes) VALUES (?, ?, ?, ?, ?, ?)');
-        $order_stmt->bind_param('idssss', $user_id, $total, $status, $shipping_address, $phone, $delivery_notes);
+        $order_stmt = $conn->prepare('INSERT INTO orders (user_id, total_price, status, shipping_address, phone, delivery_notes, delivery_method, delivery_fee, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $order_stmt->bind_param('idsssssds', $user_id, $total, $status, $shipping_address, $phone, $delivery_notes, $delivery_method, $delivery_fee, $payment_method);
 
         if ($order_stmt->execute()) {
             $order_id = $conn->insert_id;
@@ -155,7 +185,7 @@ include 'includes/header.php';
     <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 300px; background: var(--white); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow);">
             <h3 style="margin-bottom: 1.5rem; color: var(--primary-dark);">Shipping Details</h3>
-            <form id="checkout-form" method="POST" action="">
+            <form id="checkout-form" method="POST" action="" data-items-total="<?php echo htmlspecialchars((string) $items_total); ?>">
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" value="<?php echo htmlspecialchars($_SESSION['name']); ?>" class="form-control" readonly>
@@ -173,28 +203,59 @@ include 'includes/header.php';
                     <textarea name="delivery_notes" class="form-control" rows="3" placeholder="Optional delivery instructions"><?php echo htmlspecialchars($delivery_notes); ?></textarea>
                 </div>
 
+                <div class="form-group">
+                    <label>Delivery Method</label>
+                    <div class="checkout-options">
+                        <?php foreach ($delivery_options as $value => $option): ?>
+                            <label class="checkout-option">
+                                <input type="radio" name="delivery_method" value="<?php echo htmlspecialchars($value); ?>" data-label="<?php echo htmlspecialchars($option['label']); ?>" data-fee="<?php echo htmlspecialchars((string) $option['fee']); ?>" <?php echo $delivery_method === $value ? 'checked' : ''; ?>>
+                                <span>
+                                    <strong><?php echo htmlspecialchars($option['label']); ?></strong>
+                                    <small><?php echo htmlspecialchars($option['description']); ?></small>
+                                    <em><?php echo (float) $option['fee'] > 0 ? 'LKR ' . number_format((float) $option['fee'], 2) : 'Free'; ?></em>
+                                </span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
                 <div class="profile-divider"></div>
                 <h3 style="margin-bottom: 1.5rem; color: var(--primary-dark);">Payment Details</h3>
 
                 <div class="form-group">
+                    <label>Payment Method</label>
+                    <div class="checkout-options">
+                        <?php foreach ($payment_options as $value => $option): ?>
+                            <label class="checkout-option">
+                                <input type="radio" name="payment_method" value="<?php echo htmlspecialchars($value); ?>" data-label="<?php echo htmlspecialchars($option['label']); ?>" <?php echo $payment_method === $value ? 'checked' : ''; ?>>
+                                <span>
+                                    <strong><?php echo htmlspecialchars($option['label']); ?></strong>
+                                    <small><?php echo htmlspecialchars($option['description']); ?></small>
+                                </span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Card Number (Mock Payment)</label>
-                    <input type="text" placeholder="XXXX XXXX XXXX XXXX" class="form-control" required>
+                    <input type="text" placeholder="XXXX XXXX XXXX XXXX" class="form-control">
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <div class="form-group" style="flex: 1;">
                         <label>Expiry</label>
-                        <input type="text" placeholder="MM/YY" class="form-control" required>
+                        <input type="text" placeholder="MM/YY" class="form-control">
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label>CVV</label>
-                        <input type="text" placeholder="123" class="form-control" required>
+                        <input type="text" placeholder="123" class="form-control">
                     </div>
                 </div>
 
                 <?php if ($stock_error): ?>
                     <a href="cart.php" class="btn btn-outline" style="width: 100%; margin-top: 1rem;">Review Cart Stock</a>
                 <?php else: ?>
-                    <button type="submit" name="place_order" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Pay LKR <?php echo number_format($total, 2); ?></button>
+                    <button type="submit" name="place_order" id="place-order-button" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"><?php echo $payment_method === 'card' ? 'Pay' : 'Place Order'; ?> LKR <?php echo number_format($total, 2); ?></button>
                 <?php endif; ?>
             </form>
         </div>
@@ -210,9 +271,23 @@ include 'includes/header.php';
                 <?php endforeach; ?>
             </div>
             <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eee;">
+            <div style="display: grid; gap: 0.4rem; margin-bottom: 1rem; color: var(--text-light);">
+                <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                    <span>Items</span>
+                    <span>LKR <?php echo number_format($items_total, 2); ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                    <span id="delivery-summary-label"><?php echo htmlspecialchars($delivery_options[$delivery_method]['label']); ?></span>
+                    <span id="delivery-summary-fee"><?php echo $delivery_fee > 0 ? 'LKR ' . number_format($delivery_fee, 2) : 'Free'; ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                    <span>Payment</span>
+                    <span id="payment-summary-label"><?php echo htmlspecialchars($payment_options[$payment_method]['label']); ?></span>
+                </div>
+            </div>
             <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.2rem; color: var(--primary-color);">
                 <span>Total</span>
-                <span>LKR <?php echo number_format($total, 2); ?></span>
+                <span id="checkout-total">LKR <?php echo number_format($total, 2); ?></span>
             </div>
         </div>
     </div>
