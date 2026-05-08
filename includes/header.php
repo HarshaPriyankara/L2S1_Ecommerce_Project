@@ -92,3 +92,11 @@ if (isset($_SESSION['cart'])) {
                 <a href="cart.php">View Cart</a>
             </div>
         <?php endif; ?>
+        <?php if (!empty($_GET['cart_error'])): ?>
+            <div class="cart-toast cart-toast-error" role="status" aria-live="polite">
+                <div>
+                    <strong>Cart not updated</strong>
+                    <span><?php echo htmlspecialchars($_GET['cart_error']); ?></span>
+                </div>
+            </div>
+        <?php endif; ?>

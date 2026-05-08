@@ -959,6 +959,54 @@ footer .brand-name {
     display: block;
 }
 
+.cart-toast-error {
+    border-color: rgba(214, 48, 49, 0.32);
+}
+
+.cart-toast-error::before {
+    content: '\f071';
+    background: var(--danger);
+}
+
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.stock-badge.in-stock {
+    background: rgba(0, 184, 148, 0.12);
+    color: var(--success);
+}
+
+.stock-badge.out-stock {
+    background: rgba(214, 48, 49, 0.1);
+    color: var(--danger);
+}
+
+.stock-note {
+    display: block;
+    margin: 0.35rem 0 0.75rem;
+    color: var(--text-light);
+    font-size: 0.86rem;
+}
+
+.btn-disabled,
+.btn-disabled:hover {
+    background: #d9dedb !important;
+    color: #7d8983 !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    transform: none !important;
+    filter: none !important;
+}
+
 .product-desc {
     color: var(--text-light);
     font-size: 0.9rem;

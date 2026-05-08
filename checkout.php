@@ -22,6 +22,7 @@ $delivery_notes = trim($_POST['delivery_notes'] ?? '');
 $cart_items = $_SESSION['cart'];
 $cart_products = [];
 $total = 0;
+$stock_error = '';
 
 $order_columns = [
     'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
@@ -53,6 +54,15 @@ $product_result = $conn->query("SELECT * FROM products WHERE id IN ($id_list) AN
 while ($product = $product_result->fetch_assoc()) {
     $product_id = (int) $product['id'];
     $quantity = max(1, (int) ($cart_items[$product_id] ?? 1));
+    $available_stock = (int) ($product['stock_quantity'] ?? 0);
+
+    if ($available_stock <= 0) {
+        $stock_error = htmlspecialchars($product['name']) . ' is out of stock.';
+    } elseif ($quantity > $available_stock) {
+        $stock_error = htmlspecialchars($product['name']) . ' only has ' . $available_stock . ' item(s) available.';
+        $quantity = $available_stock;
+    }
+
     $subtotal = (float) $product['price'] * $quantity;
 
     $product['quantity'] = $quantity;
@@ -71,36 +81,59 @@ if (isset($_POST['place_order'])) {
     $user_id = (int) $_SESSION['user_id'];
     $status = 'completed';
 
-    if ($shipping_address === '' || $phone === '') {
+    if ($stock_error !== '') {
+        $message = 'Please update your cart. ' . $stock_error;
+    } elseif ($shipping_address === '' || $phone === '') {
         $message = 'Shipping address and phone number are required.';
     } elseif (strlen($phone) < 7) {
         $message = 'Please enter a valid phone number.';
     } else {
+        $conn->begin_transaction();
         $order_stmt = $conn->prepare('INSERT INTO orders (user_id, total_price, status, shipping_address, phone, delivery_notes) VALUES (?, ?, ?, ?, ?, ?)');
         $order_stmt->bind_param('idssss', $user_id, $total, $status, $shipping_address, $phone, $delivery_notes);
 
         if ($order_stmt->execute()) {
             $order_id = $conn->insert_id;
             $item_stmt = $conn->prepare('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)');
+            $stock_stmt = $conn->prepare('UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?');
+            $stock_update_ok = true;
 
             foreach ($cart_products as $product) {
                 $product_id = (int) $product['id'];
                 $quantity = (int) $product['quantity'];
                 $price = (float) $product['price'];
                 $item_stmt->bind_param('iiid', $order_id, $product_id, $quantity, $price);
-                $item_stmt->execute();
+                if (!$item_stmt->execute()) {
+                    $stock_update_ok = false;
+                    break;
+                }
+
+                $stock_stmt->bind_param('iii', $quantity, $product_id, $quantity);
+                if (!$stock_stmt->execute() || $stock_stmt->affected_rows !== 1) {
+                    $stock_update_ok = false;
+                    break;
+                }
             }
 
             $item_stmt->close();
+            $stock_stmt->close();
             $order_stmt->close();
-            unset($_SESSION['cart']);
 
-            header('Location: order_confirmation.php?order_id=' . $order_id);
-            exit();
+            if ($stock_update_ok) {
+                $conn->commit();
+                unset($_SESSION['cart']);
+
+                header('Location: order_confirmation.php?order_id=' . $order_id);
+                exit();
+            }
+
+            $conn->rollback();
+            $message = 'Stock changed while placing your order. Please review your cart and try again.';
+        } else {
+            $conn->rollback();
+            $message = 'Error placing order: ' . $conn->error;
+            $order_stmt->close();
         }
-
-        $message = 'Error placing order: ' . $conn->error;
-        $order_stmt->close();
     }
 }
 
@@ -112,6 +145,11 @@ include 'includes/header.php';
 
     <?php if ($message): ?>
         <div class="alert alert-error"><?php echo htmlspecialchars($message); ?></div>
+    <?php endif; ?>
+    <?php if ($stock_error): ?>
+        <div class="alert alert-error">
+            <?php echo $stock_error; ?> <a href="cart.php" class="auth-link">Update your cart</a>
+        </div>
     <?php endif; ?>
 
     <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
@@ -153,7 +191,11 @@ include 'includes/header.php';
                     </div>
                 </div>
 
-                <button type="submit" name="place_order" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Pay LKR <?php echo number_format($total, 2); ?></button>
+                <?php if ($stock_error): ?>
+                    <a href="cart.php" class="btn btn-outline" style="width: 100%; margin-top: 1rem;">Review Cart Stock</a>
+                <?php else: ?>
+                    <button type="submit" name="place_order" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Pay LKR <?php echo number_format($total, 2); ?></button>
+                <?php endif; ?>
             </form>
         </div>
 

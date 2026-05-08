@@ -19,6 +19,8 @@ if ($result->num_rows == 0) {
 }
 
 $product = $result->fetch_assoc();
+$stock_quantity = (int) ($product['stock_quantity'] ?? 0);
+$in_stock = $stock_quantity > 0;
 
 // Calculate Average Rating
 $rating_sql = "SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = $product_id";
@@ -59,17 +61,29 @@ $reviews_result = $conn->query($reviews_sql);
             </div>
 
             <p style="font-size: 1.25rem; font-weight: bold; color: var(--primary-color); margin-bottom: 1rem;">LKR <?php echo number_format($product['price'], 2); ?></p>
+            <span class="stock-badge <?php echo $in_stock ? 'in-stock' : 'out-stock'; ?>">
+                <?php echo $in_stock ? 'In stock' : 'Out of stock'; ?>
+            </span>
+            <span class="stock-note">
+                <?php echo $in_stock ? $stock_quantity . ' available for delivery' : 'This product is currently unavailable'; ?>
+            </span>
             
             <p style="margin-bottom: 2rem; line-height: 1.6;"><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
             
             <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
-                <form action="cart.php" method="POST" style="flex: 1;">
-                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                    <input type="hidden" name="redirect_to" value="product_details.php?id=<?php echo $product['id']; ?>">
-                    <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-cart-plus"></i> Add to Cart
+                <?php if ($in_stock): ?>
+                    <form action="cart.php" method="POST" style="flex: 1;">
+                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                        <input type="hidden" name="redirect_to" value="product_details.php?id=<?php echo $product['id']; ?>">
+                        <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <button type="button" class="btn btn-disabled" style="flex: 1;" disabled>
+                        <i class="fas fa-ban"></i> Out of Stock
                     </button>
-                </form>
+                <?php endif; ?>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <form action="add_to_wishlist.php" method="POST">

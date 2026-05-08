@@ -71,6 +71,7 @@ if (isset($_POST['reset_admin'])) {
                     <th>Name</th>
                     <th>Category</th>
                     <th>Price</th>
+                    <th>Stock</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -88,6 +89,7 @@ if (isset($_POST['reset_admin'])) {
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td>LKR " . number_format($row['price'], 2) . "</td>";
+                        echo "<td><span class='stock-badge " . ((int) $row['stock_quantity'] > 0 ? "in-stock" : "out-stock") . "'>" . ((int) $row['stock_quantity'] > 0 ? (int) $row['stock_quantity'] . " in stock" : "Out of stock") . "</span></td>";
                         echo "<td>
                                 <div class='admin-actions'>
                                     <a href='edit_product.php?id=" . $row['id'] . "' class='btn-outline' style='padding: 0.2rem 0.5rem; font-size: 0.9rem;'>Edit</a>
@@ -97,7 +99,7 @@ if (isset($_POST['reset_admin'])) {
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='6' style='text-align:center;'>No products found.</td></tr>";
+                    echo "<tr><td colspan='7' style='text-align:center;'>No products found.</td></tr>";
                 }
                 ?>
             </tbody>

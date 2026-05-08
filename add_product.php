@@ -15,6 +15,7 @@ if (isset($_POST['submit'])) {
     $name = $conn->real_escape_string($_POST['name']);
     $description = $conn->real_escape_string($_POST['description']);
     $price = $_POST['price'];
+    $stock_quantity = max(0, (int) ($_POST['stock_quantity'] ?? 0));
     
     // Image Upload
     $target_dir = "uploads/";
@@ -58,7 +59,7 @@ if (isset($_POST['submit'])) {
     } else {
     if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
             $category = $_POST['category'];
-            $sql = "INSERT INTO products (name, category, description, price, image) VALUES ('$name', '$category', '$description', '$price', '$unique_name')";
+            $sql = "INSERT INTO products (name, category, description, price, stock_quantity, image) VALUES ('$name', '$category', '$description', '$price', '$stock_quantity', '$unique_name')";
             
             if ($conn->query($sql) === TRUE) {
                 $message = "The product has been added.";
@@ -114,6 +115,10 @@ if (isset($_POST['submit'])) {
         <div class="form-group">
             <label>Price (LKR)</label>
             <input type="number" step="0.01" name="price" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Stock Quantity</label>
+            <input type="number" min="0" step="1" name="stock_quantity" class="form-control" value="25" required>
         </div>
         <div class="form-group">
             <label>Product Image</label>

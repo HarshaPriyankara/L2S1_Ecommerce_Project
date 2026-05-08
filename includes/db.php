@@ -58,6 +58,11 @@ if ($conn->connect_error) {
 
 $conn->set_charset('utf8mb4');
 
+$stockColumnCheck = $conn->query("SHOW COLUMNS FROM products LIKE 'stock_quantity'");
+if ($stockColumnCheck && $stockColumnCheck->num_rows === 0) {
+    $conn->query('ALTER TABLE products ADD COLUMN stock_quantity INT NOT NULL DEFAULT 25 AFTER price');
+}
+
 function product_image_path($filename) {
     $filename = basename((string) $filename);
     $path = __DIR__ . '/../uploads/' . $filename;

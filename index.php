@@ -293,6 +293,8 @@ function bind_stmt_params($stmt, $types, &$params) {
 
                     if ($result->num_rows > 0) {
                         while($row = $result->fetch_assoc()) {
+                            $stock_quantity = (int) ($row['stock_quantity'] ?? 0);
+                            $in_stock = $stock_quantity > 0;
                             ?>
                             <div class="product-card-premium">
                                 <a href="product_details.php?id=<?php echo $row['id']; ?>" class="product-link" style="display: flex; flex-direction: column; height: 100%;">
@@ -320,15 +322,29 @@ function bind_stmt_params($stmt, $types, &$params) {
                                         <p class="product-desc" style="margin-bottom: 2rem; color: #666; font-size: 0.95rem; flex: 1;">
                                             <?php echo htmlspecialchars(substr($row['description'], 0, 100)) . '...'; ?>
                                         </p>
+                                        <span class="stock-badge <?php echo $in_stock ? 'in-stock' : 'out-stock'; ?>">
+                                            <?php echo $in_stock ? 'In stock' : 'Out of stock'; ?>
+                                        </span>
+                                        <?php if ($in_stock): ?>
+                                            <span class="stock-note"><?php echo $stock_quantity; ?> available</span>
+                                        <?php else: ?>
+                                            <span class="stock-note">Currently unavailable</span>
+                                        <?php endif; ?>
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
                                             <span class="product-price" style="margin: 0; font-size: 1.5rem; color: var(--primary-color);">LKR <?php echo number_format($row['price'], 2); ?></span>
-                                            <form action="cart.php" method="POST">
-                                                <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
-                                                <input type="hidden" name="redirect_to" value="index.php#products">
-                                                <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-plus"></i>
+                                            <?php if ($in_stock): ?>
+                                                <form action="cart.php" method="POST">
+                                                    <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
+                                                    <input type="hidden" name="redirect_to" value="index.php#products">
+                                                    <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn-disabled" style="width: 45px; height: 45px; border-radius: 50%; padding: 0;" disabled>
+                                                    <i class="fas fa-ban"></i>
                                                 </button>
-                                            </form>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </a>

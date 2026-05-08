@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS products (
     category VARCHAR(100) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
+    stock_quantity INT NOT NULL DEFAULT 25,
     image VARCHAR(255),
     is_deleted TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

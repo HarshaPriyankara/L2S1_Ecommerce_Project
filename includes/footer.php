@@ -80,7 +80,7 @@
                 syncPriceSlider();
             }
 
-            function showCartToast() {
+            function showCartToast(message, isError) {
                 var toast = document.querySelector('.cart-toast');
 
                 if (!toast) {
@@ -88,10 +88,13 @@
                     toast.className = 'cart-toast';
                     toast.setAttribute('role', 'status');
                     toast.setAttribute('aria-live', 'polite');
-                    toast.innerHTML = '<div><strong>Added to cart</strong><span>You can keep shopping or view your cart when ready.</span></div><a href="cart.php">View Cart</a>';
                     document.body.appendChild(toast);
                 }
 
+                toast.className = 'cart-toast' + (isError ? ' cart-toast-error' : '');
+                toast.innerHTML = isError
+                    ? '<div><strong>Cart not updated</strong><span>' + message + '</span></div>'
+                    : '<div><strong>Added to cart</strong><span>You can keep shopping or view your cart when ready.</span></div><a href="cart.php">View Cart</a>';
                 toast.classList.remove('is-hiding');
                 toast.classList.add('is-visible');
                 window.clearTimeout(cartToastTimer);
@@ -151,11 +154,12 @@
                         })
                         .then(function (data) {
                             if (!data.success) {
-                                throw new Error('Cart update failed');
+                                showCartToast(data.message || 'Cart update failed', true);
+                                return;
                             }
 
                             updateCartCount(parseInt(data.cart_count, 10) || 0);
-                            showCartToast();
+                            showCartToast('', false);
                         })
                         .catch(function () {
                             form.submit();

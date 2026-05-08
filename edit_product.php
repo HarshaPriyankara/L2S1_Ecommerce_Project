@@ -53,12 +53,15 @@ if (isset($_POST['update_product'])) {
     $category = trim($_POST['category'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $price = isset($_POST['price']) ? (float) $_POST['price'] : 0;
+    $stock_quantity = isset($_POST['stock_quantity']) ? max(0, (int) $_POST['stock_quantity']) : 0;
     $image_name = $product['image'];
 
     if ($name === '' || $category === '' || $description === '') {
         $error = 'Name, category, and description are required.';
     } elseif ($price <= 0) {
         $error = 'Price must be greater than zero.';
+    } elseif ($stock_quantity < 0) {
+        $error = 'Stock quantity cannot be negative.';
     } elseif (!in_array($category, $categories, true)) {
         $error = 'Please choose a valid category.';
     }
@@ -95,8 +98,8 @@ if (isset($_POST['update_product'])) {
     }
 
     if (!$error) {
-        $update_stmt = $conn->prepare('UPDATE products SET name = ?, category = ?, description = ?, price = ?, image = ? WHERE id = ?');
-        $update_stmt->bind_param('sssdsi', $name, $category, $description, $price, $image_name, $product_id);
+        $update_stmt = $conn->prepare('UPDATE products SET name = ?, category = ?, description = ?, price = ?, stock_quantity = ?, image = ? WHERE id = ?');
+        $update_stmt->bind_param('sssdisi', $name, $category, $description, $price, $stock_quantity, $image_name, $product_id);
 
         if ($update_stmt->execute()) {
             $message = 'Product updated successfully.';
@@ -104,6 +107,7 @@ if (isset($_POST['update_product'])) {
             $product['category'] = $category;
             $product['description'] = $description;
             $product['price'] = $price;
+            $product['stock_quantity'] = $stock_quantity;
             $product['image'] = $image_name;
         } else {
             $error = 'Could not update product. Please try again.';
@@ -152,6 +156,11 @@ include 'includes/header.php';
         <div class="form-group">
             <label>Price (LKR)</label>
             <input type="number" step="0.01" min="0.01" name="price" class="form-control" value="<?php echo htmlspecialchars($product['price']); ?>" required>
+        </div>
+
+        <div class="form-group">
+            <label>Stock Quantity</label>
+            <input type="number" step="1" min="0" name="stock_quantity" class="form-control" value="<?php echo htmlspecialchars($product['stock_quantity']); ?>" required>
         </div>
 
         <div class="form-group">
