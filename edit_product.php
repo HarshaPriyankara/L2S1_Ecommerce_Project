@@ -1,12 +1,7 @@
 <?php
 include 'includes/db.php';
 require_once 'includes/security.php';
-ayurora_start_secure_session();
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php');
-    exit();
-}
+ayurora_require_admin();
 
 $categories = ayurora_product_categories();
 

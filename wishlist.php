@@ -1,11 +1,7 @@
 <?php
 include 'includes/db.php';
-include 'includes/header.php';
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+require_once 'includes/security.php';
+ayurora_require_login();
 
 $user_id = (int) $_SESSION['user_id'];
 
@@ -28,6 +24,8 @@ $stmt = $conn->prepare('SELECT w.id as wishlist_id, p.* FROM wishlist w JOIN pro
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+
+include 'includes/header.php';
 ?>
 
 <div class="container">

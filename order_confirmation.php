@@ -2,12 +2,7 @@
 include 'includes/db.php';
 include 'includes/order_status.php';
 require_once 'includes/security.php';
-ayurora_start_secure_session();
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+ayurora_require_login();
 
 $order_id = ayurora_int_input($_GET['order_id'] ?? null);
 $user_id = (int) $_SESSION['user_id'];

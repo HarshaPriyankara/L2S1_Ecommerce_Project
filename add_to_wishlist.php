@@ -1,12 +1,7 @@
 <?php
 include 'includes/db.php';
 require_once 'includes/security.php';
-ayurora_start_secure_session();
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+ayurora_require_login();
 
 if (isset($_POST['add_to_wishlist'])) {
     $user_id = (int) $_SESSION['user_id'];

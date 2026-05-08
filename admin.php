@@ -1,12 +1,7 @@
 <?php
 include 'includes/db.php';
-include 'includes/header.php';
-
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    echo "<script>window.location.href='login.php';</script>";
-    exit();
-}
+require_once 'includes/security.php';
+ayurora_require_admin();
 
 $message = '';
 $error = '';
@@ -143,6 +138,8 @@ $summary_result = $conn->query("SELECT COALESCE(SUM(total_price), 0) AS revenue 
 if ($summary_result) {
     $summary['revenue'] = (float) $summary_result->fetch_assoc()['revenue'];
 }
+
+include 'includes/header.php';
 ?>
 
 <div class="container">

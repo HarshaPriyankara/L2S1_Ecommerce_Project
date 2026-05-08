@@ -18,6 +18,24 @@ function ayurora_start_secure_session() {
     session_start();
 }
 
+function ayurora_require_login($redirect = 'login.php') {
+    ayurora_start_secure_session();
+
+    if (empty($_SESSION['user_id'])) {
+        header('Location: ' . $redirect);
+        exit();
+    }
+}
+
+function ayurora_require_admin($redirect = 'login.php') {
+    ayurora_start_secure_session();
+
+    if (empty($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+        header('Location: ' . $redirect);
+        exit();
+    }
+}
+
 function ayurora_password_error($password) {
     if (strlen($password) < 8) {
         return 'Password must be at least 8 characters.';
