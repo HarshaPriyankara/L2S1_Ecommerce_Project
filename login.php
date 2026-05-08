@@ -1,46 +1,75 @@
 <?php
 include 'includes/db.php';
-include 'includes/header.php';
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
 $error = '';
+$max_attempts = 5;
+$lock_seconds = 300;
 
 if (isset($_POST['login'])) {
-    $email = $conn->real_escape_string($_POST['email']);
-    $password = $_POST['password'];
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $attempt_key = strtolower($email) ?: 'unknown';
 
-    $sql = "SELECT * FROM users WHERE email = '$email'";
-    $result = $conn->query($sql);
+    if (!isset($_SESSION['login_attempts'])) {
+        $_SESSION['login_attempts'] = [];
+    }
 
-    if ($result->num_rows == 1) {
+    $attempt = $_SESSION['login_attempts'][$attempt_key] ?? [
+        'count' => 0,
+        'locked_until' => 0,
+    ];
+
+    if (!empty($attempt['locked_until']) && $attempt['locked_until'] > time()) {
+        $remaining_minutes = (int) ceil(($attempt['locked_until'] - time()) / 60);
+        $error = 'Too many login attempts. Please try again in ' . $remaining_minutes . ' minute(s).';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
+        $error = 'Please enter a valid email and password.';
+    } else {
+        $stmt = $conn->prepare('SELECT id, name, email, password, role, is_active FROM users WHERE email = ? LIMIT 1');
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $user = $result->fetch_assoc();
-        if (isset($user['is_active']) && (int) $user['is_active'] !== 1) {
-            $error = "This account is inactive. Please contact admin.";
-        } elseif (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
+        $stmt->close();
+
+        if ($user && isset($user['is_active']) && (int) $user['is_active'] !== 1) {
+            $error = 'This account is inactive. Please contact admin.';
+        } elseif ($user && password_verify($password, $user['password'])) {
+            unset($_SESSION['login_attempts'][$attempt_key]);
+            session_regenerate_id(true);
+
+            $_SESSION['user_id'] = (int) $user['id'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['role'] = $user['role'];
             
-            
-            if ($user['role'] == 'admin') {
-                echo "<script>window.location.href='admin.php';</script>";
-            } else {
-                echo "<script>window.location.href='index.php';</script>";
-            }
+            header('Location: ' . ($user['role'] === 'admin' ? 'admin.php' : 'index.php'));
             exit();
         } else {
-            $error = "Invalid password!";
+            $attempt['count'] = ((int) $attempt['count']) + 1;
+
+            if ($attempt['count'] >= $max_attempts) {
+                $attempt['locked_until'] = time() + $lock_seconds;
+                $attempt['count'] = 0;
+                $error = 'Too many login attempts. Please try again in 5 minutes.';
+            } else {
+                $error = 'Invalid email or password.';
+            }
+
+            $_SESSION['login_attempts'][$attempt_key] = $attempt;
         }
-    } else {
-        $error = "User not found!";
     }
 }
+
+include 'includes/header.php';
 ?>
 
 <div class="auth-container">
     <h2 class="section-title">Login</h2>
     
     <?php if ($error): ?>
-        <div class="alert alert-error"><?php echo $error; ?></div>
+        <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
     <form method="POST" action="">

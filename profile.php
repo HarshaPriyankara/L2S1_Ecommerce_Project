@@ -1,9 +1,7 @@
 <?php
 include 'includes/db.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -60,8 +58,8 @@ if (isset($_POST['update_profile'])) {
             $error = 'Current password is incorrect.';
         } elseif ($new_password !== $confirm_password) {
             $error = 'New passwords do not match.';
-        } elseif (strlen($new_password) < 6) {
-            $error = 'New password must be at least 6 characters.';
+        } elseif (($password_error = ayurora_password_error($new_password)) !== '') {
+            $error = $password_error;
         } else {
             $password_to_save = password_hash($new_password, PASSWORD_DEFAULT);
         }
@@ -123,12 +121,12 @@ include 'includes/header.php';
 
         <div class="form-group">
             <label>New Password</label>
-            <input type="password" name="new_password" class="form-control" minlength="6">
+            <input type="password" name="new_password" class="form-control" minlength="8">
         </div>
 
         <div class="form-group">
             <label>Confirm New Password</label>
-            <input type="password" name="confirm_password" class="form-control" minlength="6">
+            <input type="password" name="confirm_password" class="form-control" minlength="8">
         </div>
 
         <button type="submit" name="update_profile" class="btn btn-primary" style="width: 100%;">Update Profile</button>

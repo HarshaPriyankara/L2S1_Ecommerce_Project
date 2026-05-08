@@ -1,9 +1,7 @@
 <?php
 include 'includes/db.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
 if (!isset($_SESSION['user_id'])) {
     echo "<script>alert('Please login to add to wishlist'); window.location.href='login.php';</script>";

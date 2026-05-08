@@ -54,11 +54,12 @@ if ($token === '') {
 if (isset($_POST['reset_password']) && $reset_record) {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $password_error = ayurora_password_error($password);
 
     if ($password !== $confirm_password) {
         $error = 'Passwords do not match.';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password must be at least 6 characters.';
+    } elseif ($password_error !== '') {
+        $error = $password_error;
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
@@ -96,11 +97,11 @@ if (isset($_POST['reset_password']) && $reset_record) {
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
                 <div class="form-group">
                     <label>New Password</label>
-                    <input type="password" name="password" class="form-control" minlength="6" required>
+                    <input type="password" name="password" class="form-control" minlength="8" required>
                 </div>
                 <div class="form-group">
                     <label>Confirm New Password</label>
-                    <input type="password" name="confirm_password" class="form-control" minlength="6" required>
+                    <input type="password" name="confirm_password" class="form-control" minlength="8" required>
                 </div>
                 <button type="submit" name="reset_password" class="btn btn-primary" style="width: 100%;">Update Password</button>
             </form>

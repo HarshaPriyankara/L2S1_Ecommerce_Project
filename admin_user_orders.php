@@ -1,10 +1,8 @@
 <?php
 include 'includes/db.php';
 include 'includes/order_status.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
