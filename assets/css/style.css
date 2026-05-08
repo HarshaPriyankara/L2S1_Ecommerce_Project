@@ -1165,6 +1165,11 @@ footer .brand-name {
     margin: 0 auto 4rem;
 }
 
+.admin-orders-page {
+    max-width: 1080px;
+    margin: 0 auto 4rem;
+}
+
 .order-history-header {
     display: flex;
     align-items: center;
@@ -1277,6 +1282,11 @@ footer .brand-name {
     color: var(--success);
 }
 
+.status-processing {
+    background: rgba(212, 175, 55, 0.16);
+    color: #9a7418;
+}
+
 .status-cancelled {
     background: rgba(214, 48, 49, 0.1);
     color: var(--danger);
@@ -1323,6 +1333,40 @@ footer .brand-name {
     white-space: nowrap;
 }
 
+.customer-line {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.order-status-form {
+    display: grid;
+    grid-template-columns: auto minmax(180px, 240px) auto;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.6rem;
+    background: #fbfcfb;
+    border-top: 1px solid #edf1ee;
+}
+
+.order-status-form label {
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.order-status-form .form-control {
+    min-height: 48px;
+}
+
+.order-status-form .btn {
+    min-height: 48px;
+    padding: 0.7rem 1.4rem;
+}
+
 @media (max-width: 720px) {
     .order-history-header,
     .order-card-header {
@@ -1348,6 +1392,10 @@ footer .brand-name {
 
     .order-item strong {
         grid-column: 2;
+    }
+
+    .order-status-form {
+        grid-template-columns: 1fr;
     }
 }
 
