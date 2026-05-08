@@ -21,30 +21,32 @@ if (isset($_POST['request_reset'])) {
     $email = trim($_POST['email']);
     $message = 'If an account exists for that email, a password reset link has been generated.';
 
-    $stmt = $conn->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) && strlen($email) <= 150) {
+        $stmt = $conn->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    if ($user = $result->fetch_assoc()) {
-        $token = bin2hex(random_bytes(32));
-        $token_hash = hash('sha256', $token);
-        $expires_at = date('Y-m-d H:i:s', time() + 3600);
+        if ($user = $result->fetch_assoc()) {
+            $token = bin2hex(random_bytes(32));
+            $token_hash = hash('sha256', $token);
+            $expires_at = date('Y-m-d H:i:s', time() + 3600);
 
-        $delete_stmt = $conn->prepare('DELETE FROM password_resets WHERE user_id = ? OR expires_at < NOW() OR used_at IS NOT NULL');
-        $delete_stmt->bind_param('i', $user['id']);
-        $delete_stmt->execute();
-        $delete_stmt->close();
+            $delete_stmt = $conn->prepare('DELETE FROM password_resets WHERE user_id = ? OR expires_at < NOW() OR used_at IS NOT NULL');
+            $delete_stmt->bind_param('i', $user['id']);
+            $delete_stmt->execute();
+            $delete_stmt->close();
 
-        $insert_stmt = $conn->prepare('INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)');
-        $insert_stmt->bind_param('iss', $user['id'], $token_hash, $expires_at);
-        $insert_stmt->execute();
-        $insert_stmt->close();
+            $insert_stmt = $conn->prepare('INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)');
+            $insert_stmt->bind_param('iss', $user['id'], $token_hash, $expires_at);
+            $insert_stmt->execute();
+            $insert_stmt->close();
 
-        $dev_reset_link = 'reset_password.php?token=' . urlencode($token);
+            $dev_reset_link = 'reset_password.php?token=' . urlencode($token);
+        }
+
+        $stmt->close();
     }
-
-    $stmt->close();
 }
 ?>
 

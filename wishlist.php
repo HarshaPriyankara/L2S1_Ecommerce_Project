@@ -3,23 +3,31 @@ include 'includes/db.php';
 include 'includes/header.php';
 
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>window.location.href='login.php';</script>";
+    header('Location: login.php');
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = (int) $_SESSION['user_id'];
 
 
 if (isset($_GET['remove'])) {
-    $item_id = $_GET['remove'];
-    $sql = "DELETE FROM wishlist WHERE id = $item_id AND user_id = $user_id";
-    $conn->query($sql);
-    echo "<script>window.location.href='wishlist.php';</script>";
+    $item_id = ayurora_int_input($_GET['remove'] ?? null);
+
+    if ($item_id !== null) {
+        $delete_stmt = $conn->prepare('DELETE FROM wishlist WHERE id = ? AND user_id = ?');
+        $delete_stmt->bind_param('ii', $item_id, $user_id);
+        $delete_stmt->execute();
+        $delete_stmt->close();
+    }
+
+    header('Location: wishlist.php');
     exit();
 }
 
-$sql = "SELECT w.id as wishlist_id, p.* FROM wishlist w JOIN products p ON w.product_id = p.id WHERE w.user_id = $user_id ORDER BY w.created_at DESC";
-$result = $conn->query($sql);
+$stmt = $conn->prepare('SELECT w.id as wishlist_id, p.* FROM wishlist w JOIN products p ON w.product_id = p.id WHERE w.user_id = ? ORDER BY w.created_at DESC');
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <div class="container">

@@ -7,13 +7,13 @@ $message = '';
 $error = '';
 
 if (isset($_POST['register'])) {
-    $name = trim($_POST['name'] ?? '');
+    $name = ayurora_clean_text($_POST['name'] ?? '', 100);
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     $password_error = ayurora_password_error($password);
 
-    if ($name === '' || strlen($name) > 100) {
+    if ($name === null) {
         $error = 'Please enter a valid full name.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 150) {
         $error = 'Please enter a valid email address.';

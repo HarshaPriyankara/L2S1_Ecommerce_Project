@@ -8,28 +8,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-$categories = [
-    'Soaps',
-    'Capsules',
-    'Oils & Thailas',
-    'Herbal Tea & Kwath',
-    'Arishta & Syrups',
-    'Powders & Churnas',
-    'Creams & Balms',
-    'Tablets & Vati',
-    'Leheyas & Pastes',
-    'Hair & Skin Care',
-    'Essential Oils',
-    'Health Supplements',
-    'Wellness Kits',
-    'Other',
-];
+$categories = ayurora_product_categories();
 
-$product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$product_id = ayurora_int_input($_GET['id'] ?? null);
 $message = '';
 $error = '';
 
-if ($product_id <= 0) {
+if ($product_id === null) {
     header('Location: admin.php');
     exit();
 }
@@ -47,50 +32,34 @@ if (!$product) {
 }
 
 if (isset($_POST['update_product'])) {
-    $name = trim($_POST['name'] ?? '');
+    $name = ayurora_clean_text($_POST['name'] ?? '', 150);
     $category = trim($_POST['category'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $price = isset($_POST['price']) ? (float) $_POST['price'] : 0;
-    $stock_quantity = isset($_POST['stock_quantity']) ? max(0, (int) $_POST['stock_quantity']) : 0;
+    $description = ayurora_clean_multiline_text($_POST['description'] ?? '', 3000);
+    $price = ayurora_decimal_input($_POST['price'] ?? null, 0.01, 1000000);
+    $stock_quantity = ayurora_int_input($_POST['stock_quantity'] ?? null, 0, 100000);
     $image_name = $product['image'];
 
-    if ($name === '' || $category === '' || $description === '') {
-        $error = 'Name, category, and description are required.';
-    } elseif ($price <= 0) {
-        $error = 'Price must be greater than zero.';
-    } elseif ($stock_quantity < 0) {
-        $error = 'Stock quantity cannot be negative.';
+    if ($name === null) {
+        $error = 'Please enter a valid product name under 150 characters.';
+    } elseif ($description === null) {
+        $error = 'Please enter a product description under 3000 characters.';
+    } elseif ($price === null) {
+        $error = 'Price must be between LKR 0.01 and LKR 1,000,000.';
+    } elseif ($stock_quantity === null) {
+        $error = 'Stock quantity must be between 0 and 100,000.';
     } elseif (!in_array($category, $categories, true)) {
         $error = 'Please choose a valid category.';
     }
 
     if (!$error && isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
-        if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-            $error = 'Sorry, there was an error uploading your file.';
-        } elseif ($_FILES['image']['size'] > 5000000) {
-            $error = 'Sorry, your file is too large.';
-        } else {
-            $target_dir = 'uploads/';
-            $original_name = basename($_FILES['image']['name']);
-            $image_file_type = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
-            $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
-            $image_check = getimagesize($_FILES['image']['tmp_name']);
+        $new_image_name = ayurora_validate_uploaded_image($_FILES['image'], $error);
 
-            if ($image_check === false) {
-                $error = 'File is not an image.';
-            } elseif (!in_array($image_file_type, $allowed_types, true)) {
-                $error = 'Sorry, only JPG, JPEG, PNG & GIF files are allowed.';
+        if (!$error) {
+            $target_file = 'uploads/' . $new_image_name;
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+                $image_name = $new_image_name;
             } else {
-                $new_image_name = time() . '_' . preg_replace('/[^A-Za-z0-9._-]/', '_', $original_name);
-                $target_file = $target_dir . $new_image_name;
-
-                if (file_exists($target_file)) {
-                    $error = 'Sorry, file already exists.';
-                } elseif (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
-                    $image_name = $new_image_name;
-                } else {
-                    $error = 'Sorry, there was an error uploading your file.';
-                }
+                $error = 'Sorry, there was an error uploading your file.';
             }
         }
     }

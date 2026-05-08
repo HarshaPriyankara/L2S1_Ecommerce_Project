@@ -5,6 +5,9 @@ include 'includes/header.php';
 $error = '';
 $message = '';
 $token = $_GET['token'] ?? $_POST['token'] ?? '';
+if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/', $token)) {
+    $token = '';
+}
 $reset_record = null;
 
 $conn->query("

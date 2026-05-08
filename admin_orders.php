@@ -32,10 +32,10 @@ foreach ($order_columns as $column => $alter_sql) {
 }
 
 if (isset($_POST['update_status'])) {
-    $order_id = (int) ($_POST['order_id'] ?? 0);
+    $order_id = ayurora_int_input($_POST['order_id'] ?? null);
     $status = $_POST['status'] ?? '';
 
-    if ($order_id <= 0 || !in_array($status, $allowed_statuses, true)) {
+    if ($order_id === null || !in_array($status, $allowed_statuses, true)) {
         $error = 'Please choose a valid order status.';
     } else {
         $update_stmt = $conn->prepare('UPDATE orders SET status = ? WHERE id = ?');

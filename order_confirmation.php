@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$order_id = isset($_GET['order_id']) ? (int) $_GET['order_id'] : 0;
+$order_id = ayurora_int_input($_GET['order_id'] ?? null);
 $user_id = (int) $_SESSION['user_id'];
 $is_admin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
@@ -29,7 +29,7 @@ foreach ($order_columns as $column => $alter_sql) {
     }
 }
 
-if ($order_id <= 0) {
+if ($order_id === null) {
     header('Location: order_history.php');
     exit();
 }

@@ -3,16 +3,33 @@ include 'includes/db.php';
 include 'includes/header.php';
 
 $search = trim($_GET['search'] ?? '');
+if (strlen($search) > 100) {
+    $search = substr($search, 0, 100);
+}
 $search_like = '%' . $search . '%';
 $selected_category = trim($_GET['category'] ?? '');
-$min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? max(0, (float) $_GET['min_price']) : null;
-$max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? max(0, (float) $_GET['max_price']) : null;
 $price_min_limit = 0;
 $price_max_limit = 5000;
 $price_step = 50;
+$min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? ayurora_decimal_input($_GET['min_price'], $price_min_limit, $price_max_limit) : null;
+$max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? ayurora_decimal_input($_GET['max_price'], $price_min_limit, $price_max_limit) : null;
 $has_price_filter = $min_price !== null || $max_price !== null;
 $has_category_filter = $selected_category !== '';
 $has_product_filters = $search !== '' || $has_price_filter || $has_category_filter;
+
+if ($selected_category !== '') {
+    $category_check_stmt = $conn->prepare('SELECT 1 FROM products WHERE category = ? AND is_deleted = 0 LIMIT 1');
+    $category_check_stmt->bind_param('s', $selected_category);
+    $category_check_stmt->execute();
+    $category_exists = $category_check_stmt->get_result()->num_rows === 1;
+    $category_check_stmt->close();
+
+    if (!$category_exists) {
+        $selected_category = '';
+        $has_category_filter = false;
+        $has_product_filters = $search !== '' || $has_price_filter;
+    }
+}
 
 if ($min_price !== null && $max_price !== null && $min_price > $max_price) {
     [$min_price, $max_price] = [$max_price, $min_price];
@@ -287,8 +304,10 @@ function bind_stmt_params($stmt, $types, &$params) {
                         $product_stmt->execute();
                         $result = $product_stmt->get_result();
                     } else {
-                        $sql = "SELECT * FROM products WHERE is_deleted = 0 AND category = '" . $conn->real_escape_string($category) . "' ORDER BY created_at DESC";
-                        $result = $conn->query($sql);
+                        $product_stmt = $conn->prepare('SELECT * FROM products WHERE is_deleted = 0 AND category = ? ORDER BY created_at DESC');
+                        $product_stmt->bind_param('s', $category);
+                        $product_stmt->execute();
+                        $result = $product_stmt->get_result();
                     }
 
                     if ($result->num_rows > 0) {

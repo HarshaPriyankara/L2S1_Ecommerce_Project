@@ -12,9 +12,9 @@ $message = '';
 $error = '';
 
 if (isset($_POST['delete_review'])) {
-    $review_id = (int) ($_POST['review_id'] ?? 0);
+    $review_id = ayurora_int_input($_POST['review_id'] ?? null);
 
-    if ($review_id <= 0) {
+    if ($review_id === null) {
         $error = 'Invalid review selected.';
     } else {
         $delete_stmt = $conn->prepare('DELETE FROM reviews WHERE id = ?');

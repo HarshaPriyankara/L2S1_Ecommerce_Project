@@ -108,14 +108,22 @@ if (empty($cart_products)) {
 if (isset($_POST['place_order'])) {
     $user_id = (int) $_SESSION['user_id'];
     $status = $payment_method === 'card' ? 'completed' : 'pending';
+    $clean_shipping_address = ayurora_clean_multiline_text($shipping_address, 500);
+    $clean_delivery_notes = $delivery_notes === '' ? '' : ayurora_clean_multiline_text($delivery_notes, 500);
+    $clean_phone = preg_replace('/[^0-9+ ]/', '', $phone);
 
     if ($stock_error !== '') {
         $message = 'Please update your cart. ' . $stock_error;
-    } elseif ($shipping_address === '' || $phone === '') {
+    } elseif ($clean_shipping_address === null || $phone === '') {
         $message = 'Shipping address and phone number are required.';
-    } elseif (strlen($phone) < 7) {
+    } elseif ($clean_delivery_notes === null) {
+        $message = 'Delivery notes must be under 500 characters.';
+    } elseif ($clean_phone !== $phone || !preg_match('/^\+?[0-9 ]{7,20}$/', $phone)) {
         $message = 'Please enter a valid phone number.';
     } else {
+        $shipping_address = $clean_shipping_address;
+        $delivery_notes = $clean_delivery_notes;
+
         $conn->begin_transaction();
         $order_stmt = $conn->prepare('INSERT INTO orders (user_id, total_price, status, shipping_address, phone, delivery_notes, delivery_method, delivery_fee, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $order_stmt->bind_param('idsssssds', $user_id, $total, $status, $shipping_address, $phone, $delivery_notes, $delivery_method, $delivery_fee, $payment_method);

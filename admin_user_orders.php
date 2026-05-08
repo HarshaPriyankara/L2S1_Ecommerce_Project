@@ -9,9 +9,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-$user_id = isset($_GET['user_id']) ? (int) $_GET['user_id'] : 0;
+$user_id = ayurora_int_input($_GET['user_id'] ?? null);
 
-if ($user_id <= 0) {
+if ($user_id === null) {
     header('Location: admin_users.php');
     exit();
 }

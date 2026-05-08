@@ -72,8 +72,13 @@ function is_ajax_request() {
 
 // Handle Add to Cart
 if (isset($_POST['add_to_cart'])) {
-    $product_id = (int) $_POST['product_id'];
+    $product_id = ayurora_int_input($_POST['product_id'] ?? null);
     $quantity = 1; // Default quantity
+
+    if ($product_id === null) {
+        header('Location: ' . cart_return_url_with_error('Invalid product selected.'));
+        exit();
+    }
 
     $stock_stmt = $conn->prepare('SELECT stock_quantity FROM products WHERE id = ? AND is_deleted = 0 LIMIT 1');
     $stock_stmt->bind_param('i', $product_id);
@@ -128,14 +133,18 @@ if (isset($_POST['add_to_cart'])) {
 
 // Handle Remove from Cart
 if (isset($_GET['remove'])) {
-    $id_to_remove = $_GET['remove'];
-    unset($_SESSION['cart'][$id_to_remove]);
+    $id_to_remove = ayurora_int_input($_GET['remove'] ?? null);
+
+    if ($id_to_remove !== null) {
+        unset($_SESSION['cart'][$id_to_remove]);
+    }
+
     header('Location: cart.php');
     exit();
 }
 
 // Handle Update Quantity
-if (isset($_POST['update_cart'])) {
+if (isset($_POST['update_cart']) && isset($_POST['qty']) && is_array($_POST['qty'])) {
     foreach ($_POST['qty'] as $pid => $qty) {
         $pid = (int) $pid;
         $qty = max(0, (int) $qty);
@@ -190,8 +199,22 @@ include 'includes/header.php';
                         $cart_items = $_SESSION['cart'];
                         
                         if (count($cart_items) > 0) {
-                            // Create a comma separated list of IDs for query
-                            $ids = implode(',', array_keys($cart_items));
+                            $cart_items = array_filter(
+                                $cart_items,
+                                function ($quantity, $product_id) {
+                                    return ayurora_int_input($product_id) !== null && ayurora_int_input($quantity, 1, 100000) !== null;
+                                },
+                                ARRAY_FILTER_USE_BOTH
+                            );
+
+                            $ids = implode(',', array_map('intval', array_keys($cart_items)));
+
+                            if ($ids === '') {
+                                $_SESSION['cart'] = [];
+                                header('Location: cart.php');
+                                exit();
+                            }
+
                             $sql = "SELECT * FROM products WHERE id IN ($ids) AND is_deleted = 0";
                             $result = $conn->query($sql);
                             $has_stock_issue = false;

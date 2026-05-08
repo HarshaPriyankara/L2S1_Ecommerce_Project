@@ -1,87 +1,70 @@
 <?php
 include 'includes/db.php';
-include 'includes/header.php';
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
 // Check Admin Access
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    echo "<script>window.location.href='login.php';</script>";
+    header('Location: login.php');
     exit();
 }
 
+$categories = ayurora_product_categories();
 $message = '';
 $error = '';
 
 if (isset($_POST['submit'])) {
-    $name = $conn->real_escape_string($_POST['name']);
-    $description = $conn->real_escape_string($_POST['description']);
-    $price = $_POST['price'];
-    $stock_quantity = max(0, (int) ($_POST['stock_quantity'] ?? 0));
-    
-    // Image Upload
-    $target_dir = "uploads/";
-    $image_name = basename($_FILES["image"]["name"]);
-    // Generate unique name to prevent overwrite
-    $unique_name = time() . '_' . $image_name;
-    $target_file = $target_dir . $unique_name;
-    $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+    $name = ayurora_clean_text($_POST['name'] ?? '', 150);
+    $category = trim($_POST['category'] ?? '');
+    $description = ayurora_clean_multiline_text($_POST['description'] ?? '', 3000);
+    $price = ayurora_decimal_input($_POST['price'] ?? null, 0.01, 1000000);
+    $stock_quantity = ayurora_int_input($_POST['stock_quantity'] ?? null, 0, 100000);
+    $unique_name = ayurora_validate_uploaded_image($_FILES['image'] ?? null, $error);
 
-    // Check if image file is a actual image or fake image
-    $check = getimagesize($_FILES["image"]["tmp_name"]);
-    if($check !== false) {
-        $uploadOk = 1;
-    } else {
-        $error = "File is not an image.";
-        $uploadOk = 0;
+    if ($name === null) {
+        $error = 'Please enter a valid product name under 150 characters.';
+    } elseif (!in_array($category, $categories, true)) {
+        $error = 'Please choose a valid category.';
+    } elseif ($description === null) {
+        $error = 'Please enter a product description under 3000 characters.';
+    } elseif ($price === null) {
+        $error = 'Price must be between LKR 0.01 and LKR 1,000,000.';
+    } elseif ($stock_quantity === null) {
+        $error = 'Stock quantity must be between 0 and 100,000.';
     }
 
-    // Check if file already exists
-    if (file_exists($target_file)) {
-        $error = "Sorry, file already exists.";
-        $uploadOk = 0;
-    }
+    if (!$error) {
+        $target_file = 'uploads/' . $unique_name;
 
-    // Check file size (5MB limit)
-    if ($_FILES["image"]["size"] > 5000000) {
-        $error = "Sorry, your file is too large.";
-        $uploadOk = 0;
-    }
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+            $stmt = $conn->prepare('INSERT INTO products (name, category, description, price, stock_quantity, image) VALUES (?, ?, ?, ?, ?, ?)');
+            $stmt->bind_param('sssdis', $name, $category, $description, $price, $stock_quantity, $unique_name);
 
-    // Allow certain file formats
-    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-    && $imageFileType != "gif" ) {
-        $error = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        $uploadOk = 0;
-    }
-
-    if ($uploadOk == 0) {
-        // if everything is not ok, error is already set
-    } else {
-    if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            $category = $_POST['category'];
-            $sql = "INSERT INTO products (name, category, description, price, stock_quantity, image) VALUES ('$name', '$category', '$description', '$price', '$stock_quantity', '$unique_name')";
-            
-            if ($conn->query($sql) === TRUE) {
-                $message = "The product has been added.";
+            if ($stmt->execute()) {
+                $message = 'The product has been added.';
             } else {
-                $error = "Error: " . $sql . "<br>" . $conn->error;
+                $error = 'Could not add product. Please try again.';
             }
+
+            $stmt->close();
         } else {
-            $error = "Sorry, there was an error uploading your file.";
+            $error = 'Sorry, there was an error uploading your file.';
         }
     }
 }
+
+include 'includes/header.php';
 ?>
 
 <div class="auth-container" style="max-width: 600px;">
     <h2 class="section-title">Add New Product</h2>
     
     <?php if ($message): ?>
-        <div class="alert alert-success"><?php echo $message; ?></div>
+        <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
     <?php endif; ?>
     
     <?php if ($error): ?>
-        <div class="alert alert-error"><?php echo $error; ?></div>
+        <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
     <form method="POST" action="" enctype="multipart/form-data">
@@ -92,20 +75,11 @@ if (isset($_POST['submit'])) {
         <div class="form-group">
             <label>Category</label>
             <select name="category" class="form-control" required>
-                <option value="Soaps">Soaps</option>
-                <option value="Capsules">Capsules</option>
-                <option value="Oils & Thailas">Oils & Thailas</option>
-                <option value="Herbal Tea & Kwath">Herbal Tea & Kwath</option>
-                <option value="Arishta & Syrups">Arishta & Syrups</option>
-                <option value="Powders & Churnas">Powders & Churnas</option>
-                <option value="Creams & Balms">Creams & Balms</option>
-                <option value="Tablets & Vati">Tablets & Vati</option>
-                <option value="Leheyas & Pastes">Leheyas & Pastes</option>
-                <option value="Hair & Skin Care">Hair & Skin Care</option>
-                <option value="Essential Oils">Essential Oils</option>
-                <option value="Health Supplements">Health Supplements</option>
-                <option value="Wellness Kits">Wellness Kits</option>
-                <option value="Other">Other</option>
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?php echo htmlspecialchars($category); ?>" <?php echo ($_POST['category'] ?? '') === $category ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($category); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group">
@@ -114,15 +88,15 @@ if (isset($_POST['submit'])) {
         </div>
         <div class="form-group">
             <label>Price (LKR)</label>
-            <input type="number" step="0.01" name="price" class="form-control" required>
+            <input type="number" step="0.01" min="0.01" max="1000000" name="price" class="form-control" required>
         </div>
         <div class="form-group">
             <label>Stock Quantity</label>
-            <input type="number" min="0" step="1" name="stock_quantity" class="form-control" value="25" required>
+            <input type="number" min="0" max="100000" step="1" name="stock_quantity" class="form-control" value="25" required>
         </div>
         <div class="form-group">
             <label>Product Image</label>
-            <input type="file" name="image" class="form-control" required>
+            <input type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.gif" required>
         </div>
         <button type="submit" name="submit" class="btn btn-primary" style="width: 100%;">Add Product</button>
         <div style="margin-top: 1rem; text-align: center;">

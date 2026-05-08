@@ -43,7 +43,12 @@ function render_product_row($row, $is_deleted = false) {
 }
 
 if (isset($_GET['delete'])) {
-    $id = (int) $_GET['delete'];
+    $id = ayurora_int_input($_GET['delete'] ?? null);
+    if ($id === null) {
+        header('Location: admin.php');
+        exit();
+    }
+
     $stmt = $conn->prepare('UPDATE products SET is_deleted = 1 WHERE id = ?');
     $stmt->bind_param('i', $id);
 
@@ -57,7 +62,12 @@ if (isset($_GET['delete'])) {
 }
 
 if (isset($_GET['restore'])) {
-    $id = (int) $_GET['restore'];
+    $id = ayurora_int_input($_GET['restore'] ?? null);
+    if ($id === null) {
+        header('Location: admin.php');
+        exit();
+    }
+
     $stmt = $conn->prepare('UPDATE products SET is_deleted = 0 WHERE id = ?');
     $stmt->bind_param('i', $id);
 

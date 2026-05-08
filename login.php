@@ -24,7 +24,7 @@ if (isset($_POST['login'])) {
     if (!empty($attempt['locked_until']) && $attempt['locked_until'] > time()) {
         $remaining_minutes = (int) ceil(($attempt['locked_until'] - time()) / 60);
         $error = 'Too many login attempts. Please try again in ' . $remaining_minutes . ' minute(s).';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 150 || $password === '') {
         $error = 'Please enter a valid email and password.';
     } else {
         $stmt = $conn->prepare('SELECT id, name, email, password, role, is_active FROM users WHERE email = ? LIMIT 1');

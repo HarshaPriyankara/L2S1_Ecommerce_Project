@@ -26,15 +26,15 @@ if (!$user) {
 }
 
 if (isset($_POST['update_profile'])) {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
+    $name = ayurora_clean_text($_POST['name'] ?? '', 100);
+    $email = trim($_POST['email'] ?? '');
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    if ($name === '' || $email === '') {
-        $error = 'Name and email are required.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if ($name === null) {
+        $error = 'Please enter a valid name under 100 characters.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 150) {
         $error = 'Please enter a valid email address.';
     } else {
         $email_stmt = $conn->prepare('SELECT id FROM users WHERE email = ? AND id != ? LIMIT 1');

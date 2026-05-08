@@ -1,36 +1,48 @@
 <?php
 include 'includes/db.php';
-include 'includes/header.php';
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
-if (!isset($_GET['id'])) {
-    echo "<script>window.location.href='index.php';</script>";
+$product_id = ayurora_int_input($_GET['id'] ?? null);
+
+if ($product_id === null) {
+    header('Location: index.php');
     exit();
 }
 
-$product_id = $_GET['id'];
-$product_id = $_GET['id'];
-$sql = "SELECT * FROM products WHERE id = $product_id AND is_deleted = 0";
-$result = $conn->query($sql);
+$stmt = $conn->prepare('SELECT * FROM products WHERE id = ? AND is_deleted = 0 LIMIT 1');
+$stmt->bind_param('i', $product_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if ($result->num_rows == 0) {
+    include 'includes/header.php';
     echo "<div class='container'><p>Product not found.</p></div>";
     include 'includes/footer.php';
     exit();
 }
 
 $product = $result->fetch_assoc();
+$stmt->close();
 $stock_quantity = (int) ($product['stock_quantity'] ?? 0);
 $in_stock = $stock_quantity > 0;
 
 // Calculate Average Rating
-$rating_sql = "SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = $product_id";
-$rating_result = $conn->query($rating_sql);
+$rating_stmt = $conn->prepare('SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = ?');
+$rating_stmt->bind_param('i', $product_id);
+$rating_stmt->execute();
+$rating_result = $rating_stmt->get_result();
 $rating_row = $rating_result->fetch_assoc();
 $avg_rating = round($rating_row['avg_rating'], 1);
+$rating_stmt->close();
 
 // Fetch Reviews
-$reviews_sql = "SELECT r.*, u.name as user_name FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = $product_id ORDER BY r.created_at DESC";
-$reviews_result = $conn->query($reviews_sql);
+$reviews_stmt = $conn->prepare('SELECT r.*, u.name as user_name FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC');
+$reviews_stmt->bind_param('i', $product_id);
+$reviews_stmt->execute();
+$reviews_result = $reviews_stmt->get_result();
+
+include 'includes/header.php';
 ?>
 
 <div class="container">

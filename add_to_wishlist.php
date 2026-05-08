@@ -4,27 +4,47 @@ require_once 'includes/security.php';
 ayurora_start_secure_session();
 
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('Please login to add to wishlist'); window.location.href='login.php';</script>";
+    header('Location: login.php');
     exit();
 }
 
 if (isset($_POST['add_to_wishlist'])) {
-    $user_id = $_SESSION['user_id'];
-    $product_id = $_POST['product_id'];
+    $user_id = (int) $_SESSION['user_id'];
+    $product_id = ayurora_int_input($_POST['product_id'] ?? null);
 
-    
-    $check = "SELECT id FROM wishlist WHERE user_id = '$user_id' AND product_id = '$product_id'";
-    $result = $conn->query($check);
+    if ($product_id === null) {
+        header('Location: index.php#products');
+        exit();
+    }
+
+    $product_stmt = $conn->prepare('SELECT id FROM products WHERE id = ? AND is_deleted = 0 LIMIT 1');
+    $product_stmt->bind_param('i', $product_id);
+    $product_stmt->execute();
+    $product_exists = $product_stmt->get_result()->num_rows === 1;
+    $product_stmt->close();
+
+    if (!$product_exists) {
+        header('Location: index.php#products');
+        exit();
+    }
+
+    $check_stmt = $conn->prepare('SELECT id FROM wishlist WHERE user_id = ? AND product_id = ? LIMIT 1');
+    $check_stmt->bind_param('ii', $user_id, $product_id);
+    $check_stmt->execute();
+    $result = $check_stmt->get_result();
 
     if ($result->num_rows == 0) {
-        $sql = "INSERT INTO wishlist (user_id, product_id) VALUES ('$user_id', '$product_id')";
-        if ($conn->query($sql) === TRUE) {
-            echo "<script>alert('Added to wishlist!'); window.history.back();</script>";
-        } else {
-            echo "Error: " . $conn->error;
-        }
-    } else {
-        echo "<script>alert('Item already in wishlist!'); window.history.back();</script>";
+        $insert_stmt = $conn->prepare('INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)');
+        $insert_stmt->bind_param('ii', $user_id, $product_id);
+        $insert_stmt->execute();
+        $insert_stmt->close();
     }
+
+    $check_stmt->close();
+    header('Location: product_details.php?id=' . $product_id);
+    exit();
 }
+
+header('Location: index.php#products');
+exit();
 ?>

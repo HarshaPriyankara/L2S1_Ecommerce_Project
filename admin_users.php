@@ -13,6 +13,9 @@ $allowed_roles = ['customer', 'admin'];
 $message = '';
 $error = '';
 $search = trim($_GET['search'] ?? '');
+if (strlen($search) > 100) {
+    $search = substr($search, 0, 100);
+}
 $role_filter = $_GET['role'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 $has_user_filters = $search !== '' || $role_filter !== '' || $status_filter !== '';
@@ -23,11 +26,11 @@ if ($column_check && $column_check->num_rows === 0) {
 }
 
 if (isset($_POST['update_user'])) {
-    $user_id = (int) ($_POST['user_id'] ?? 0);
+    $user_id = ayurora_int_input($_POST['user_id'] ?? null);
     $role = $_POST['role'] ?? '';
     $is_active = isset($_POST['is_active']) ? (int) $_POST['is_active'] : 0;
 
-    if ($user_id <= 0 || !in_array($role, $allowed_roles, true) || !in_array($is_active, [0, 1], true)) {
+    if ($user_id === null || !in_array($role, $allowed_roles, true) || !in_array($is_active, [0, 1], true)) {
         $error = 'Please choose valid user settings.';
     } elseif ($user_id === $current_user_id && ($role !== 'admin' || $is_active !== 1)) {
         $error = 'You cannot remove your own admin access or deactivate your own account.';
