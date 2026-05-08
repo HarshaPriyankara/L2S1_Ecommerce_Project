@@ -28,6 +28,12 @@ if (isset($_SESSION['cart'])) {
                 <img src="assets/images/ayurora-logo-small.png" alt="AYURORA logo" class="brand-logo" width="24" height="24">
                 <span class="brand-name">AYURORA</span>
             </a>
+            <form class="nav-search" method="GET" action="index.php#products">
+                <label class="sr-only" for="nav-search-input">Search products</label>
+                <i class="fas fa-search"></i>
+                <input id="nav-search-input" type="search" name="search" placeholder="Search products" value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
+                <button type="submit" aria-label="Search products"><i class="fas fa-arrow-right"></i></button>
+            </form>
             <ul class="nav-links">
                 <li><a href="index.php">Home</a></li>
                 <li><a href="index.php#products">Products</a></li> 

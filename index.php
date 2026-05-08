@@ -1,6 +1,9 @@
 <?php
 include 'includes/db.php';
 include 'includes/header.php';
+
+$search = trim($_GET['search'] ?? '');
+$search_like = '%' . $search . '%';
 ?>
 
 <!-- Close the default container for full-width home page sections -->
@@ -109,22 +112,56 @@ include 'includes/header.php';
             <div style="width: 80px; height: 4px; background: var(--accent-color); margin: 2rem auto;"></div>
         </div>
 
+        <form class="product-search" method="GET" action="index.php#products">
+            <div class="product-search-field">
+                <i class="fas fa-search"></i>
+                <input type="search" name="search" placeholder="Search products..." value="<?php echo htmlspecialchars($search); ?>">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <?php if ($search !== ''): ?>
+                <a href="index.php#products" class="btn btn-outline">Clear</a>
+            <?php endif; ?>
+        </form>
+
+        <?php if ($search !== ''): ?>
+            <p class="search-summary">Showing results for <strong><?php echo htmlspecialchars($search); ?></strong></p>
+        <?php endif; ?>
+
         <!-- Category Navigation -->
         <div class="category-nav" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 4rem;">
             <?php
-            $cat_result_nav = $conn->query("SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category");
+            if ($search !== '') {
+                $cat_nav_stmt = $conn->prepare("SELECT DISTINCT category FROM products WHERE is_deleted = 0 AND (name LIKE ? OR description LIKE ? OR category LIKE ?) ORDER BY category");
+                $cat_nav_stmt->bind_param('sss', $search_like, $search_like, $search_like);
+                $cat_nav_stmt->execute();
+                $cat_result_nav = $cat_nav_stmt->get_result();
+            } else {
+                $cat_result_nav = $conn->query("SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category");
+            }
+
             if ($cat_result_nav->num_rows > 0) {
                 while($nav_row = $cat_result_nav->fetch_assoc()) {
                     $cat_name = $nav_row['category'];
                     echo '<a href="#' . strtolower(str_replace(' ', '-', $cat_name)) . '" class="btn-outline" style="padding: 0.6rem 1.5rem; font-size: 0.85rem; border-radius: 50px;">' . htmlspecialchars($cat_name) . '</a>';
                 }
             }
+
+            if (isset($cat_nav_stmt)) {
+                $cat_nav_stmt->close();
+            }
             ?>
         </div>
 
         <?php
-        $cat_sql = "SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category";
-        $cat_result = $conn->query($cat_sql);
+        if ($search !== '') {
+            $cat_stmt = $conn->prepare("SELECT DISTINCT category FROM products WHERE is_deleted = 0 AND (name LIKE ? OR description LIKE ? OR category LIKE ?) ORDER BY category");
+            $cat_stmt->bind_param('sss', $search_like, $search_like, $search_like);
+            $cat_stmt->execute();
+            $cat_result = $cat_stmt->get_result();
+        } else {
+            $cat_sql = "SELECT DISTINCT category FROM products WHERE is_deleted = 0 ORDER BY category";
+            $cat_result = $conn->query($cat_sql);
+        }
 
         if ($cat_result->num_rows > 0) {
             while($cat_row = $cat_result->fetch_assoc()) {
@@ -138,8 +175,15 @@ include 'includes/header.php';
                 
                 <div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 3rem; align-items: stretch;">
                     <?php
-                    $sql = "SELECT * FROM products WHERE is_deleted = 0 AND category = '" . $conn->real_escape_string($category) . "' ORDER BY created_at DESC";
-                    $result = $conn->query($sql);
+                    if ($search !== '') {
+                        $product_stmt = $conn->prepare("SELECT * FROM products WHERE is_deleted = 0 AND category = ? AND (name LIKE ? OR description LIKE ? OR category LIKE ?) ORDER BY created_at DESC");
+                        $product_stmt->bind_param('ssss', $category, $search_like, $search_like, $search_like);
+                        $product_stmt->execute();
+                        $result = $product_stmt->get_result();
+                    } else {
+                        $sql = "SELECT * FROM products WHERE is_deleted = 0 AND category = '" . $conn->real_escape_string($category) . "' ORDER BY created_at DESC";
+                        $result = $conn->query($sql);
+                    }
 
                     if ($result->num_rows > 0) {
                         while($row = $result->fetch_assoc()) {
@@ -186,6 +230,11 @@ include 'includes/header.php';
                             <?php
                         }
                     }
+
+                    if (isset($product_stmt)) {
+                        $product_stmt->close();
+                        unset($product_stmt);
+                    }
                     ?>
                 </div>
                 <?php
@@ -193,10 +242,20 @@ include 'includes/header.php';
         } else {
             ?>
             <div style="text-align: center; padding: 4rem 2rem; background: var(--primary-light); border-radius: var(--radius-md);">
-                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">No products found</h3>
-                <p style="color: var(--text-light);">Import <code>database.sql</code> again or run <code>seed_products.php</code> once to add the sample items.</p>
+                <?php if ($search !== ''): ?>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">No products found for "<?php echo htmlspecialchars($search); ?>"</h3>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem;">Try another product name, category, or ingredient.</p>
+                    <a href="index.php#products" class="btn btn-primary">View All Products</a>
+                <?php else: ?>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">No products found</h3>
+                    <p style="color: var(--text-light);">Import <code>database.sql</code> again or run <code>seed_products.php</code> once to add the sample items.</p>
+                <?php endif; ?>
             </div>
             <?php
+        }
+
+        if (isset($cat_stmt)) {
+            $cat_stmt->close();
         }
         ?>
     </div>

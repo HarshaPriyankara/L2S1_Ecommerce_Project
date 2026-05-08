@@ -86,6 +86,7 @@ header {
     padding: 1.2rem 5%;
     max-width: 1400px;
     margin: 0 auto;
+    gap: 1.5rem;
 }
 
 .logo {
@@ -132,6 +133,68 @@ footer .brand-name {
     display: flex;
     gap: 2rem;
     align-items: center;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.nav-search {
+    flex: 0 1 310px;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.35rem 0.45rem 0.35rem 0.9rem;
+    border: 1px solid rgba(27, 60, 45, 0.16);
+    border-radius: 50px;
+    background: var(--primary-light);
+}
+
+.nav-search i {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.nav-search input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.nav-search button {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: var(--white);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    transition: var(--transition);
+}
+
+.nav-search button i {
+    color: var(--white);
+}
+
+.nav-search button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
 }
 
 .nav-links a:not(.btn) {
@@ -826,6 +889,47 @@ footer .brand-name {
     overflow: hidden;
 }
 
+.product-search {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+    justify-content: center;
+    max-width: 760px;
+    margin: -2rem auto 2.5rem;
+}
+
+.product-search-field {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0 1.1rem;
+    border: 1px solid #dde5df;
+    border-radius: 50px;
+    background: var(--white);
+    box-shadow: 0 10px 26px rgba(27, 60, 45, 0.06);
+}
+
+.product-search-field i {
+    color: var(--secondary-color);
+}
+
+.product-search input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    padding: 1rem 0;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.search-summary {
+    margin: -1rem auto 2rem;
+    text-align: center;
+    color: var(--text-light);
+}
+
 /* Forms */
 .auth-container {
     max-width: 450px;
@@ -1120,6 +1224,10 @@ footer {
         /* simple fix for now, ideally a mobile menu */
     }
 
+    .nav-search {
+        display: none;
+    }
+
     .category-header {
         flex-direction: column;
         align-items: flex-start;
@@ -1139,6 +1247,11 @@ footer {
 
     .hero-actions .btn {
         width: 100%;
+    }
+
+    .product-search {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .cart-toast {
