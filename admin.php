@@ -89,12 +89,15 @@ if (isset($_POST['reset_admin'])) {
                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
                         echo "<td>LKR " . number_format($row['price'], 2) . "</td>";
                         echo "<td>
-                                <a href='admin.php?delete=" . $row['id'] . "' class='btn-outline' style='border-color: var(--danger); color: var(--danger); padding: 0.2rem 0.5rem; font-size: 0.9rem;' onclick='return confirm(\"Are you sure?\")'>Delete</a>
+                                <div class='admin-actions'>
+                                    <a href='edit_product.php?id=" . $row['id'] . "' class='btn-outline' style='padding: 0.2rem 0.5rem; font-size: 0.9rem;'>Edit</a>
+                                    <a href='admin.php?delete=" . $row['id'] . "' class='btn-outline' style='border-color: var(--danger); color: var(--danger); padding: 0.2rem 0.5rem; font-size: 0.9rem;' onclick='return confirm(\"Are you sure?\")'>Delete</a>
+                                </div>
                               </td>";
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='5' style='text-align:center;'>No products found.</td></tr>";
+                    echo "<tr><td colspan='6' style='text-align:center;'>No products found.</td></tr>";
                 }
                 ?>
             </tbody>

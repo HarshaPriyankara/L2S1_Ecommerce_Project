@@ -1160,6 +1160,30 @@ footer .brand-name {
     margin-bottom: 0.5rem;
 }
 
+.edit-product-image {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem;
+    border: 1px solid #e8ece9;
+    border-radius: 10px;
+    background: var(--primary-light);
+}
+
+.edit-product-image img {
+    width: 76px;
+    height: 76px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--white);
+}
+
+.edit-product-image span {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
 .order-history-page {
     max-width: 980px;
     margin: 0 auto 4rem;
@@ -1501,6 +1525,13 @@ td {
 th {
     color: var(--primary-dark);
     font-weight: 600;
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
 }
 
 /* Alerts */
