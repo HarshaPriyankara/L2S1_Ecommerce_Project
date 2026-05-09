@@ -27,6 +27,8 @@ if (!$product) {
 }
 
 if (isset($_POST['update_product'])) {
+    ayurora_require_valid_csrf();
+
     $name = ayurora_clean_text($_POST['name'] ?? '', 150);
     $category = trim($_POST['category'] ?? '');
     $description = ayurora_clean_multiline_text($_POST['description'] ?? '', 3000);
@@ -94,6 +96,7 @@ include 'includes/header.php';
     <?php endif; ?>
 
     <form method="POST" action="edit_product.php?id=<?php echo (int) $product_id; ?>" enctype="multipart/form-data">
+        <?php echo ayurora_csrf_field(); ?>
         <div class="form-group">
             <label>Product Name</label>
             <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($product['name']); ?>" required>

@@ -8,6 +8,8 @@ $max_attempts = 5;
 $lock_seconds = 300;
 
 if (isset($_POST['login'])) {
+    ayurora_require_valid_csrf();
+
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $attempt_key = strtolower($email) ?: 'unknown';
@@ -73,6 +75,7 @@ include 'includes/header.php';
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo ayurora_csrf_field(); ?>
         <div class="form-group">
             <label>Email Address</label>
             <input type="email" name="email" class="form-control" required>

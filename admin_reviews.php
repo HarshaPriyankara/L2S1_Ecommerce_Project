@@ -7,6 +7,8 @@ $message = '';
 $error = '';
 
 if (isset($_POST['delete_review'])) {
+    ayurora_require_valid_csrf();
+
     $review_id = ayurora_int_input($_POST['review_id'] ?? null);
 
     if ($review_id === null) {
@@ -94,6 +96,7 @@ include 'includes/header.php';
                     </div>
 
                     <form method="POST" action="admin_reviews.php" onsubmit="return confirm('Delete this review?');">
+                        <?php echo ayurora_csrf_field(); ?>
                         <input type="hidden" name="review_id" value="<?php echo (int) $review['id']; ?>">
                         <button type="submit" name="delete_review" class="btn-outline admin-delete-review">
                             <i class="fas fa-trash"></i> Delete

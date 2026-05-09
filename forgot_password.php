@@ -18,6 +18,8 @@ $conn->query("
 ");
 
 if (isset($_POST['request_reset'])) {
+    ayurora_require_valid_csrf();
+
     $email = trim($_POST['email']);
     $message = 'If an account exists for that email, a password reset link has been generated.';
 
@@ -66,6 +68,7 @@ if (isset($_POST['request_reset'])) {
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo ayurora_csrf_field(); ?>
         <div class="form-group">
             <label>Email Address</label>
             <input type="email" name="email" class="form-control" required>

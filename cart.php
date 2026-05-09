@@ -72,6 +72,8 @@ function is_ajax_request() {
 
 // Handle Add to Cart
 if (isset($_POST['add_to_cart'])) {
+    ayurora_require_valid_csrf();
+
     $product_id = ayurora_int_input($_POST['product_id'] ?? null);
     $quantity = 1; // Default quantity
 
@@ -132,8 +134,10 @@ if (isset($_POST['add_to_cart'])) {
 }
 
 // Handle Remove from Cart
-if (isset($_GET['remove'])) {
-    $id_to_remove = ayurora_int_input($_GET['remove'] ?? null);
+if (isset($_POST['remove_from_cart'])) {
+    ayurora_require_valid_csrf();
+
+    $id_to_remove = ayurora_int_input($_POST['remove_from_cart'] ?? null);
 
     if ($id_to_remove !== null) {
         unset($_SESSION['cart'][$id_to_remove]);
@@ -145,6 +149,8 @@ if (isset($_GET['remove'])) {
 
 // Handle Update Quantity
 if (isset($_POST['update_cart']) && isset($_POST['qty']) && is_array($_POST['qty'])) {
+    ayurora_require_valid_csrf();
+
     foreach ($_POST['qty'] as $pid => $qty) {
         $pid = (int) $pid;
         $qty = max(0, (int) $qty);
@@ -181,6 +187,7 @@ include 'includes/header.php';
         <div class="alert alert-error">Your cart is empty. <a href="index.php">Go Shop!</a></div>
     <?php else: ?>
         <form action="cart.php" method="POST">
+            <?php echo ayurora_csrf_field(); ?>
             <div class="table-container">
                 <table class="cart-table">
                     <thead>
@@ -246,7 +253,9 @@ include 'includes/header.php';
                                     </td>
                                     <td>LKR <?php echo number_format($subtotal, 2); ?></td>
                                     <td>
-                                        <a href="cart.php?remove=<?php echo $row['id']; ?>" class="btn-outline" style="border-color: var(--danger); color: var(--danger); padding: 0.3rem 0.8rem; border-radius: 5px;">Remove</a>
+                                        <button type="submit" name="remove_from_cart" value="<?php echo (int) $row['id']; ?>" class="btn-outline" style="border-color: var(--danger); color: var(--danger); padding: 0.3rem 0.8rem; border-radius: 5px;">
+                                            Remove
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php

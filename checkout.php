@@ -101,6 +101,8 @@ if (empty($cart_products)) {
 }
 
 if (isset($_POST['place_order'])) {
+    ayurora_require_valid_csrf();
+
     $user_id = (int) $_SESSION['user_id'];
     $status = $payment_method === 'card' ? 'completed' : 'pending';
     $clean_shipping_address = ayurora_clean_multiline_text($shipping_address, 500);
@@ -187,6 +189,7 @@ include 'includes/header.php';
         <div style="flex: 1; min-width: 300px; background: var(--white); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow);">
             <h3 style="margin-bottom: 1.5rem; color: var(--primary-dark);">Shipping Details</h3>
             <form id="checkout-form" method="POST" action="" data-items-total="<?php echo htmlspecialchars((string) $items_total); ?>">
+                <?php echo ayurora_csrf_field(); ?>
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" value="<?php echo htmlspecialchars($_SESSION['name']); ?>" class="form-control" readonly>

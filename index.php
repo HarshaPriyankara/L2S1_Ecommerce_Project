@@ -356,6 +356,7 @@ function bind_stmt_params($stmt, $types, &$params) {
                                             <span class="product-price" style="margin: 0; font-size: 1.5rem; color: var(--primary-color);">LKR <?php echo number_format($row['price'], 2); ?></span>
                                             <?php if ($in_stock): ?>
                                                 <form action="cart.php" method="POST">
+                                                    <?php echo ayurora_csrf_field(); ?>
                                                     <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
                                                     <input type="hidden" name="redirect_to" value="index.php#products">
                                                     <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">

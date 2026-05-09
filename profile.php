@@ -21,6 +21,8 @@ if (!$user) {
 }
 
 if (isset($_POST['update_profile'])) {
+    ayurora_require_valid_csrf();
+
     $name = ayurora_clean_text($_POST['name'] ?? '', 100);
     $email = trim($_POST['email'] ?? '');
     $current_password = $_POST['current_password'] ?? '';
@@ -94,6 +96,7 @@ include 'includes/header.php';
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo ayurora_csrf_field(); ?>
         <div class="form-group">
             <label>Full Name</label>
             <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($user['name']); ?>" required>

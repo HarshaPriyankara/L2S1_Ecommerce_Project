@@ -26,10 +26,18 @@ function render_product_row($row, $is_deleted = false) {
     echo "<div class='admin-actions'>";
 
     if ($is_deleted) {
-        echo "<a href='admin.php?restore=" . (int) $row['id'] . "#deleted-products' class='btn-outline' style='border-color: var(--success); color: var(--success); padding: 0.2rem 0.5rem; font-size: 0.9rem;' onclick='return confirm(\"Restore this product?\")'>Restore</a>";
+        echo "<form method='POST' action='admin.php#deleted-products' onsubmit='return confirm(\"Restore this product?\")'>";
+        echo ayurora_csrf_field();
+        echo "<input type='hidden' name='product_id' value='" . (int) $row['id'] . "'>";
+        echo "<button type='submit' name='restore_product' class='btn-outline' style='border-color: var(--success); color: var(--success); padding: 0.2rem 0.5rem; font-size: 0.9rem;'>Restore</button>";
+        echo "</form>";
     } else {
         echo "<a href='edit_product.php?id=" . (int) $row['id'] . "' class='btn-outline' style='padding: 0.2rem 0.5rem; font-size: 0.9rem;'>Edit</a>";
-        echo "<a href='admin.php?delete=" . (int) $row['id'] . "' class='btn-outline' style='border-color: var(--danger); color: var(--danger); padding: 0.2rem 0.5rem; font-size: 0.9rem;' onclick='return confirm(\"Move this product to deleted products?\")'>Delete</a>";
+        echo "<form method='POST' action='admin.php' onsubmit='return confirm(\"Move this product to deleted products?\")'>";
+        echo ayurora_csrf_field();
+        echo "<input type='hidden' name='product_id' value='" . (int) $row['id'] . "'>";
+        echo "<button type='submit' name='delete_product' class='btn-outline' style='border-color: var(--danger); color: var(--danger); padding: 0.2rem 0.5rem; font-size: 0.9rem;'>Delete</button>";
+        echo "</form>";
     }
 
     echo "</div>";
@@ -37,8 +45,10 @@ function render_product_row($row, $is_deleted = false) {
     echo "</tr>";
 }
 
-if (isset($_GET['delete'])) {
-    $id = ayurora_int_input($_GET['delete'] ?? null);
+if (isset($_POST['delete_product'])) {
+    ayurora_require_valid_csrf();
+
+    $id = ayurora_int_input($_POST['product_id'] ?? null);
     if ($id === null) {
         header('Location: admin.php');
         exit();
@@ -56,8 +66,10 @@ if (isset($_GET['delete'])) {
     $stmt->close();
 }
 
-if (isset($_GET['restore'])) {
-    $id = ayurora_int_input($_GET['restore'] ?? null);
+if (isset($_POST['restore_product'])) {
+    ayurora_require_valid_csrf();
+
+    $id = ayurora_int_input($_POST['product_id'] ?? null);
     if ($id === null) {
         header('Location: admin.php');
         exit();
@@ -77,6 +89,8 @@ if (isset($_GET['restore'])) {
 
 // Handle Reset Admin (Merged from fix_admin.php)
 if (isset($_POST['reset_admin'])) {
+    ayurora_require_valid_csrf();
+
     $email = 'admin@ayurora.com';
     $password = 'admin123';
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -147,6 +161,7 @@ include 'includes/header.php';
         <h2 class="section-title" style="margin-bottom: 0;">Admin Dashboard</h2>
         <div style="display: flex; gap: 1rem;">
             <form method="POST" action="" onsubmit="return confirm('Reset Admin Credentials to Default? (admin@ayurora.com / admin123)');">
+                <?php echo ayurora_csrf_field(); ?>
                 <button type="submit" name="reset_admin" class="btn-outline" style="border-color: #f39c12; color: #f39c12;"><i class="fas fa-tools"></i> Reset Admin</button>
             </form>
             <a href="add_product.php" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Product</a>

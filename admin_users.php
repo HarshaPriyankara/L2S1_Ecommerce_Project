@@ -21,6 +21,8 @@ if ($column_check && $column_check->num_rows === 0) {
 }
 
 if (isset($_POST['update_user'])) {
+    ayurora_require_valid_csrf();
+
     $user_id = ayurora_int_input($_POST['user_id'] ?? null);
     $role = $_POST['role'] ?? '';
     $is_active = isset($_POST['is_active']) ? (int) $_POST['is_active'] : 0;
@@ -193,6 +195,7 @@ include 'includes/header.php';
                             <td><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
                             <td>
                                 <form method="POST" action="admin_users.php" class="admin-user-form">
+                                    <?php echo ayurora_csrf_field(); ?>
                                     <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
 
                                     <select name="role" class="form-control" <?php echo $is_current_user ? 'disabled' : ''; ?>>

@@ -6,8 +6,10 @@ ayurora_require_login();
 $user_id = (int) $_SESSION['user_id'];
 
 
-if (isset($_GET['remove'])) {
-    $item_id = ayurora_int_input($_GET['remove'] ?? null);
+if (isset($_POST['remove_wishlist'])) {
+    ayurora_require_valid_csrf();
+
+    $item_id = ayurora_int_input($_POST['wishlist_id'] ?? null);
 
     if ($item_id !== null) {
         $delete_stmt = $conn->prepare('DELETE FROM wishlist WHERE id = ? AND user_id = ?');
@@ -56,15 +58,20 @@ include 'includes/header.php';
                         <td>
                             <div style="display: flex; gap: 0.5rem;">
                                 <form action="cart.php" method="POST" style="display: inline;">
+                                    <?php echo ayurora_csrf_field(); ?>
                                     <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
                                     <input type="hidden" name="redirect_to" value="wishlist.php">
                                     <button type="submit" name="add_to_cart" class="btn btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.9rem;">
                                         Add to Cart
                                     </button>
                                 </form>
-                                <a href="wishlist.php?remove=<?php echo $row['wishlist_id']; ?>" class="btn-outline" style="border-color: var(--danger); color: var(--danger); padding: 0.3rem 0.8rem; border-radius: 5px; font-size: 0.9rem;">
-                                    Remove
-                                </a>
+                                <form action="wishlist.php" method="POST" style="display: inline;">
+                                    <?php echo ayurora_csrf_field(); ?>
+                                    <input type="hidden" name="wishlist_id" value="<?php echo (int) $row['wishlist_id']; ?>">
+                                    <button type="submit" name="remove_wishlist" class="btn-outline" style="border-color: var(--danger); color: var(--danger); padding: 0.3rem 0.8rem; border-radius: 5px; font-size: 0.9rem;">
+                                        Remove
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

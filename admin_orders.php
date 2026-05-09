@@ -27,6 +27,8 @@ foreach ($order_columns as $column => $alter_sql) {
 }
 
 if (isset($_POST['update_status'])) {
+    ayurora_require_valid_csrf();
+
     $order_id = ayurora_int_input($_POST['order_id'] ?? null);
     $status = $_POST['status'] ?? '';
 
@@ -184,6 +186,7 @@ include 'includes/header.php';
                     </div>
 
                     <form method="POST" action="admin_orders.php" class="order-status-form">
+                        <?php echo ayurora_csrf_field(); ?>
                         <input type="hidden" name="order_id" value="<?php echo (int) $order['id']; ?>">
                         <label for="status-<?php echo (int) $order['id']; ?>">Update Status</label>
                         <select id="status-<?php echo (int) $order['id']; ?>" name="status" class="form-control">

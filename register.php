@@ -7,6 +7,8 @@ $message = '';
 $error = '';
 
 if (isset($_POST['register'])) {
+    ayurora_require_valid_csrf();
+
     $name = ayurora_clean_text($_POST['name'] ?? '', 100);
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -63,6 +65,7 @@ include 'includes/header.php';
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo ayurora_csrf_field(); ?>
         <div class="form-group">
             <label>Full Name</label>
             <input type="text" name="name" class="form-control" required>

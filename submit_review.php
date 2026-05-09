@@ -4,6 +4,8 @@ require_once 'includes/security.php';
 ayurora_require_login();
 
 if (isset($_POST['submit_review'])) {
+    ayurora_require_valid_csrf();
+
     $user_id = (int) $_SESSION['user_id'];
     $product_id = ayurora_int_input($_POST['product_id'] ?? null);
     $rating = ayurora_int_input($_POST['rating'] ?? null, 1, 5);

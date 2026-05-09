@@ -85,6 +85,7 @@ include 'includes/header.php';
             <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
                 <?php if ($in_stock): ?>
                     <form action="cart.php" method="POST" style="flex: 1;">
+                        <?php echo ayurora_csrf_field(); ?>
                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                         <input type="hidden" name="redirect_to" value="product_details.php?id=<?php echo $product['id']; ?>">
                         <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 100%;">
@@ -99,6 +100,7 @@ include 'includes/header.php';
 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <form action="add_to_wishlist.php" method="POST">
+                        <?php echo ayurora_csrf_field(); ?>
                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                         <button type="submit" name="add_to_wishlist" class="btn btn-outline" style="border-color: #e74c3c; color: #e74c3c;">
                             <i class="fas fa-heart"></i> Wishlist
@@ -125,6 +127,7 @@ include 'includes/header.php';
                     <div class="review-form">
                         <h3>Share Your Experience</h3>
                         <form action="submit_review.php" method="POST">
+                            <?php echo ayurora_csrf_field(); ?>
                             <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                             
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Your Rating</label>

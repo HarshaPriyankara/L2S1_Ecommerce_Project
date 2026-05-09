@@ -1,8 +1,21 @@
 <?php
+function ayurora_send_security_headers() {
+    if (headers_sent()) {
+        return;
+    }
+
+    header('X-Frame-Options: SAMEORIGIN');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+}
+
 function ayurora_start_secure_session() {
     if (session_status() === PHP_SESSION_ACTIVE) {
         return;
     }
+
+    ayurora_send_security_headers();
 
     $is_secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 
@@ -16,6 +29,36 @@ function ayurora_start_secure_session() {
     ]);
 
     session_start();
+}
+
+function ayurora_csrf_token() {
+    ayurora_start_secure_session();
+
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    return $_SESSION['csrf_token'];
+}
+
+function ayurora_csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(ayurora_csrf_token()) . '">';
+}
+
+function ayurora_verify_csrf() {
+    ayurora_start_secure_session();
+
+    $token = $_POST['csrf_token'] ?? '';
+    return is_string($token)
+        && isset($_SESSION['csrf_token'])
+        && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+function ayurora_require_valid_csrf() {
+    if (!ayurora_verify_csrf()) {
+        http_response_code(403);
+        exit('Invalid request token.');
+    }
 }
 
 function ayurora_require_login($redirect = 'login.php') {
