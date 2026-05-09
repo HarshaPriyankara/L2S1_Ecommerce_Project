@@ -6,7 +6,7 @@ ayurora_start_secure_session();
 $product_id = ayurora_int_input($_GET['id'] ?? null);
 
 if ($product_id === null) {
-    header('Location: index.php');
+    header('Location: friendly_error.php?type=product');
     exit();
 }
 
@@ -16,9 +16,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows == 0) {
-    include 'includes/header.php';
-    echo "<div class='container'><p>Product not found.</p></div>";
-    include 'includes/footer.php';
+    header('Location: friendly_error.php?type=product');
     exit();
 }
 

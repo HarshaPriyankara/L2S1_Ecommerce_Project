@@ -25,7 +25,7 @@ foreach ($order_columns as $column => $alter_sql) {
 }
 
 if ($order_id === null) {
-    header('Location: order_history.php');
+    header('Location: friendly_error.php?type=order');
     exit();
 }
 
@@ -55,7 +55,7 @@ $order = $order_result->fetch_assoc();
 $order_stmt->close();
 
 if (!$order) {
-    header('Location: order_history.php');
+    header('Location: friendly_error.php?type=order');
     exit();
 }
 
