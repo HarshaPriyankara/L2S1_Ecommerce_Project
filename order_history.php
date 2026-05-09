@@ -76,6 +76,9 @@ include 'includes/header.php';
                                 <?php echo htmlspecialchars(ucfirst($order['status'])); ?>
                             </span>
                             <strong>LKR <?php echo number_format((float) $order['total_price'], 2); ?></strong>
+                            <a href="order_receipt.php?order_id=<?php echo (int) $order['id']; ?>" class="btn-outline order-receipt-link">
+                                <i class="fas fa-receipt"></i> Receipt
+                            </a>
                         </div>
                     </div>
 

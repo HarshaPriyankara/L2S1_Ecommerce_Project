@@ -122,6 +122,7 @@ include 'includes/header.php';
         </div>
 
         <div class="confirmation-actions">
+            <a href="order_receipt.php?order_id=<?php echo (int) $order['id']; ?>" class="btn btn-primary">View Receipt</a>
             <a href="order_history.php" class="btn btn-primary">View Order History</a>
             <a href="index.php#products" class="btn btn-outline">Continue Shopping</a>
         </div>
