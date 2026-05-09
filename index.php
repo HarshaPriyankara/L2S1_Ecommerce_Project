@@ -3,16 +3,33 @@ include 'includes/db.php';
 include 'includes/header.php';
 
 $search = trim($_GET['search'] ?? '');
+if (strlen($search) > 100) {
+    $search = substr($search, 0, 100);
+}
 $search_like = '%' . $search . '%';
 $selected_category = trim($_GET['category'] ?? '');
-$min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? max(0, (float) $_GET['min_price']) : null;
-$max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? max(0, (float) $_GET['max_price']) : null;
 $price_min_limit = 0;
 $price_max_limit = 5000;
 $price_step = 50;
+$min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? ayurora_decimal_input($_GET['min_price'], $price_min_limit, $price_max_limit) : null;
+$max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? ayurora_decimal_input($_GET['max_price'], $price_min_limit, $price_max_limit) : null;
 $has_price_filter = $min_price !== null || $max_price !== null;
 $has_category_filter = $selected_category !== '';
 $has_product_filters = $search !== '' || $has_price_filter || $has_category_filter;
+
+if ($selected_category !== '') {
+    $category_check_stmt = $conn->prepare('SELECT 1 FROM products WHERE category = ? AND is_deleted = 0 LIMIT 1');
+    $category_check_stmt->bind_param('s', $selected_category);
+    $category_check_stmt->execute();
+    $category_exists = $category_check_stmt->get_result()->num_rows === 1;
+    $category_check_stmt->close();
+
+    if (!$category_exists) {
+        $selected_category = '';
+        $has_category_filter = false;
+        $has_product_filters = $search !== '' || $has_price_filter;
+    }
+}
 
 if ($min_price !== null && $max_price !== null && $min_price > $max_price) {
     [$min_price, $max_price] = [$max_price, $min_price];
@@ -79,9 +96,9 @@ function bind_stmt_params($stmt, $types, &$params) {
 </section>
 
 <!-- Features Bar -->
-<section style="background: var(--white); border-bottom: 1px solid #eee; padding: 3rem 0; position: relative; z-index: 10;">
-    <div class="container" style="max-width: 1400px; margin: 0 auto;">
-        <div class="feature-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center;">
+<section class="home-features">
+    <div class="container home-wide-container">
+        <div class="feature-grid home-feature-grid">
             <div class="feature-item">
                 <i class="fas fa-seedling" style="color: var(--accent-color); font-size: 2rem; margin-bottom: 1rem;"></i>
                 <h4 style="color: var(--primary-color);">100% Organic</h4>
@@ -108,7 +125,7 @@ function bind_stmt_params($stmt, $types, &$params) {
 
 <!-- Our Philosophy Section -->
 <section id="philosophy" class="philosophy-section">
-    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+    <div class="container home-narrow-container">
         <div class="philosophy-grid">
             <div class="philosophy-image-stack">
                 <img src="assets/images/image1.png" alt="Ayurveda Process" class="img-main">
@@ -120,12 +137,12 @@ function bind_stmt_params($stmt, $types, &$params) {
                 <p style="color: #555; font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">
                     For centuries, Sri Lankan Ayurveda has been a beacon of natural healing. At AYURORA, we preserve this sacred tradition by combining ancient wisdom with modern precision. Every product is a testament to the healing power of the earth.
                 </p>
-                <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+                <div class="philosophy-stats">
                     <div>
                         <h3 style="color: var(--primary-color); font-size: 1.8rem;">15+</h3>
                         <p style="font-size: 0.9rem; color: #777;">Years of Heritage</p>
                     </div>
-                    <div style="width: 1px; background: #ddd; height: 50px;"></div>
+                    <div class="philosophy-stat-divider"></div>
                     <div>
                         <h3 style="color: var(--primary-color); font-size: 1.8rem;">100%</h3>
                         <p style="font-size: 0.9rem; color: #777;">Natural Ingredients</p>
@@ -138,24 +155,24 @@ function bind_stmt_params($stmt, $types, &$params) {
 </section>
 
 <!-- Featured Banner Section -->
-<section style="margin: 8rem 0; background: var(--primary-color); color: white; padding: 6rem 0; position: relative; overflow: hidden;">
-    <img src="assets/images/homeimage.jpeg" alt="Nature" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15;">
-    <div class="container" style="position: relative; z-index: 2; text-align: center; max-width: 800px; margin: 0 auto;">
-        <h2 style="font-size: 3rem; margin-bottom: 1.5rem;">The Secret of Longevity</h2>
-        <p style="font-size: 1.2rem; opacity: 0.8; margin-bottom: 3rem;">
+<section class="home-banner">
+    <img src="assets/images/homeimage.jpeg" alt="Nature" class="home-banner-bg">
+    <div class="container home-banner-content">
+        <h2>The Secret of Longevity</h2>
+        <p>
             "Ayurveda is not just a medicine, it is a way of life." Embrace the gift of nature today.
         </p>
-        <div style="display: inline-flex; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 60px; backdrop-filter: blur(10px);">
-             <span style="padding: 10px 30px;">Premium Quality</span>
-             <span style="padding: 10px 30px; background: var(--accent-color); border-radius: 50px; color: var(--primary-dark); font-weight: 700;">Exclusive Offer</span>
-             <span style="padding: 10px 30px;">Authentic Sources</span>
+        <div class="home-banner-pills">
+             <span>Premium Quality</span>
+             <span class="active">Exclusive Offer</span>
+             <span>Authentic Sources</span>
         </div>
     </div>
 </section>
 
 <!-- Product Section -->
 <section id="products" style="padding: 6rem 0; background: #fff;">
-    <div class="container" style="max-width: 1400px; margin: 0 auto;">
+    <div class="container home-wide-container">
         <div style="text-align: center; margin-bottom: 5rem;">
             <span style="color: var(--accent-color); font-weight: 700; text-transform: uppercase;">Curated For You</span>
             <h2 style="font-size: 3.5rem; color: var(--primary-color); margin-top: 1rem;">Premium Collection</h2>
@@ -277,7 +294,7 @@ function bind_stmt_params($stmt, $types, &$params) {
                     <div class="category-line"></div>
                 </div>
                 
-                <div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 3rem; align-items: stretch;">
+                <div class="product-grid home-product-grid">
                     <?php
                     if ($has_product_filters) {
                         $product_stmt = $conn->prepare("SELECT * FROM products WHERE category = ? AND $filter_sql ORDER BY created_at DESC");
@@ -287,12 +304,16 @@ function bind_stmt_params($stmt, $types, &$params) {
                         $product_stmt->execute();
                         $result = $product_stmt->get_result();
                     } else {
-                        $sql = "SELECT * FROM products WHERE is_deleted = 0 AND category = '" . $conn->real_escape_string($category) . "' ORDER BY created_at DESC";
-                        $result = $conn->query($sql);
+                        $product_stmt = $conn->prepare('SELECT * FROM products WHERE is_deleted = 0 AND category = ? ORDER BY created_at DESC');
+                        $product_stmt->bind_param('s', $category);
+                        $product_stmt->execute();
+                        $result = $product_stmt->get_result();
                     }
 
                     if ($result->num_rows > 0) {
                         while($row = $result->fetch_assoc()) {
+                            $stock_quantity = (int) ($row['stock_quantity'] ?? 0);
+                            $in_stock = $stock_quantity > 0;
                             ?>
                             <div class="product-card-premium">
                                 <a href="product_details.php?id=<?php echo $row['id']; ?>" class="product-link" style="display: flex; flex-direction: column; height: 100%;">
@@ -303,10 +324,11 @@ function bind_stmt_params($stmt, $types, &$params) {
                                         <h3 class="product-title" style="font-size: 1.4rem; color: var(--primary-color); margin-bottom: 0.5rem; min-height: 3.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($row['name']); ?></h3>
                                         
                                         <?php
-                                        $rating_sql = "SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = " . $row['id'];
+                                        $rating_sql = "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count FROM reviews WHERE product_id = " . $row['id'];
                                         $rating_res = $conn->query($rating_sql);
                                         $rating_row = $rating_res->fetch_assoc();
                                         $avg = round($rating_row['avg_rating'] ?? 0, 1);
+                                        $review_count = (int) ($rating_row['review_count'] ?? 0);
                                         ?>
                                         <div class="rating-stars" style="color: #f39c12; margin: 0.5rem 0;">
                                             <?php
@@ -314,21 +336,38 @@ function bind_stmt_params($stmt, $types, &$params) {
                                                 echo ($i <= $avg) ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
                                             }
                                             ?>
-                                            <span style="color: #999; font-size: 0.8rem; margin-left: 5px;">(<?php echo number_format($avg, 1); ?>)</span>
+                                            <span style="color: #999; font-size: 0.8rem; margin-left: 5px;">
+                                                <?php echo $review_count > 0 ? number_format($avg, 1) . ' / 5 (' . $review_count . ')' : 'No reviews'; ?>
+                                            </span>
                                         </div>
 
                                         <p class="product-desc" style="margin-bottom: 2rem; color: #666; font-size: 0.95rem; flex: 1;">
                                             <?php echo htmlspecialchars(substr($row['description'], 0, 100)) . '...'; ?>
                                         </p>
+                                        <span class="stock-badge <?php echo $in_stock ? 'in-stock' : 'out-stock'; ?>">
+                                            <?php echo $in_stock ? 'In stock' : 'Out of stock'; ?>
+                                        </span>
+                                        <?php if ($in_stock): ?>
+                                            <span class="stock-note"><?php echo $stock_quantity; ?> available</span>
+                                        <?php else: ?>
+                                            <span class="stock-note">Currently unavailable</span>
+                                        <?php endif; ?>
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
                                             <span class="product-price" style="margin: 0; font-size: 1.5rem; color: var(--primary-color);">LKR <?php echo number_format($row['price'], 2); ?></span>
-                                            <form action="cart.php" method="POST">
-                                                <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
-                                                <input type="hidden" name="redirect_to" value="index.php#products">
-                                                <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-plus"></i>
+                                            <?php if ($in_stock): ?>
+                                                <form action="cart.php" method="POST">
+                                                    <?php echo ayurora_csrf_field(); ?>
+                                                    <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
+                                                    <input type="hidden" name="redirect_to" value="index.php#products">
+                                                    <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 45px; height: 45px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn-disabled" style="width: 45px; height: 45px; border-radius: 50%; padding: 0;" disabled>
+                                                    <i class="fas fa-ban"></i>
                                                 </button>
-                                            </form>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </a>
@@ -368,19 +407,19 @@ function bind_stmt_params($stmt, $types, &$params) {
 </section>
 
 <!-- CTA Section -->
-<section style="padding: 10rem 0; background: var(--bg-color); text-align: center;">
+<section class="home-cta">
     <div class="container">
-        <div style="background: var(--white); padding: 5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-premium); border: 1px solid rgba(0,0,0,0.05);">
+        <div class="home-cta-card">
             <div class="floating" style="display: inline-block; margin-bottom: 2rem;">
                 <i class="fas fa-leaf" style="font-size: 3rem; color: var(--accent-color);"></i>
             </div>
-            <h2 style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1.5rem;">Join Our Wellness Circle</h2>
-            <p style="color: #777; max-width: 600px; margin: 0 auto 3rem;">
+            <h2>Join Our Wellness Circle</h2>
+            <p>
                 Subscribe to receive wellness tips, traditional recipes, and exclusive access to new launches.
             </p>
-            <div style="max-width: 500px; margin: 0 auto; display: flex; gap: 1rem;">
-                <input type="email" placeholder="Email Address" style="flex: 1; padding: 1.2rem; border-radius: 50px; border: 1px solid #ddd; outline: none; font-size: 1rem;">
-                <button class="btn btn-primary" style="border-radius: 50px; padding: 0 2.5rem;">Subscribe</button>
+            <div class="home-subscribe-form">
+                <input type="email" placeholder="Email Address">
+                <button class="btn btn-primary">Subscribe</button>
             </div>
         </div>
     </div>

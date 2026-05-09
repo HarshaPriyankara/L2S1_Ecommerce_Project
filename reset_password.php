@@ -5,6 +5,9 @@ include 'includes/header.php';
 $error = '';
 $message = '';
 $token = $_GET['token'] ?? $_POST['token'] ?? '';
+if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/', $token)) {
+    $token = '';
+}
 $reset_record = null;
 
 $conn->query("
@@ -52,13 +55,16 @@ if ($token === '') {
 }
 
 if (isset($_POST['reset_password']) && $reset_record) {
+    ayurora_require_valid_csrf();
+
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $password_error = ayurora_password_error($password);
 
     if ($password !== $confirm_password) {
         $error = 'Passwords do not match.';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password must be at least 6 characters.';
+    } elseif ($password_error !== '') {
+        $error = $password_error;
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
@@ -93,14 +99,15 @@ if (isset($_POST['reset_password']) && $reset_record) {
             <p class="auth-helper">Resetting password for <?php echo htmlspecialchars($reset_record['email']); ?></p>
 
             <form method="POST" action="">
+                <?php echo ayurora_csrf_field(); ?>
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
                 <div class="form-group">
                     <label>New Password</label>
-                    <input type="password" name="password" class="form-control" minlength="6" required>
+                    <input type="password" name="password" class="form-control" minlength="8" required>
                 </div>
                 <div class="form-group">
                     <label>Confirm New Password</label>
-                    <input type="password" name="confirm_password" class="form-control" minlength="6" required>
+                    <input type="password" name="confirm_password" class="form-control" minlength="8" required>
                 </div>
                 <button type="submit" name="reset_password" class="btn btn-primary" style="width: 100%;">Update Password</button>
             </form>

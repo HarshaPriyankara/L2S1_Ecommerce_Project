@@ -1,14 +1,7 @@
 <?php
 include 'includes/db.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+require_once 'includes/security.php';
+ayurora_require_login();
 
 $message = '';
 $error = '';
@@ -28,15 +21,17 @@ if (!$user) {
 }
 
 if (isset($_POST['update_profile'])) {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
+    ayurora_require_valid_csrf();
+
+    $name = ayurora_clean_text($_POST['name'] ?? '', 100);
+    $email = trim($_POST['email'] ?? '');
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    if ($name === '' || $email === '') {
-        $error = 'Name and email are required.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if ($name === null) {
+        $error = 'Please enter a valid name under 100 characters.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 150) {
         $error = 'Please enter a valid email address.';
     } else {
         $email_stmt = $conn->prepare('SELECT id FROM users WHERE email = ? AND id != ? LIMIT 1');
@@ -60,8 +55,8 @@ if (isset($_POST['update_profile'])) {
             $error = 'Current password is incorrect.';
         } elseif ($new_password !== $confirm_password) {
             $error = 'New passwords do not match.';
-        } elseif (strlen($new_password) < 6) {
-            $error = 'New password must be at least 6 characters.';
+        } elseif (($password_error = ayurora_password_error($new_password)) !== '') {
+            $error = $password_error;
         } else {
             $password_to_save = password_hash($new_password, PASSWORD_DEFAULT);
         }
@@ -101,6 +96,7 @@ include 'includes/header.php';
     <?php endif; ?>
 
     <form method="POST" action="">
+        <?php echo ayurora_csrf_field(); ?>
         <div class="form-group">
             <label>Full Name</label>
             <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($user['name']); ?>" required>
@@ -123,12 +119,12 @@ include 'includes/header.php';
 
         <div class="form-group">
             <label>New Password</label>
-            <input type="password" name="new_password" class="form-control" minlength="6">
+            <input type="password" name="new_password" class="form-control" minlength="8">
         </div>
 
         <div class="form-group">
             <label>Confirm New Password</label>
-            <input type="password" name="confirm_password" class="form-control" minlength="6">
+            <input type="password" name="confirm_password" class="form-control" minlength="8">
         </div>
 
         <button type="submit" name="update_profile" class="btn btn-primary" style="width: 100%;">Update Profile</button>

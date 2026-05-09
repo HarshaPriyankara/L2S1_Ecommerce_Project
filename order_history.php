@@ -1,14 +1,8 @@
 <?php
 include 'includes/db.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+include 'includes/order_status.php';
+require_once 'includes/security.php';
+ayurora_require_login();
 
 $user_id = (int) $_SESSION['user_id'];
 $orders = [];
@@ -82,8 +76,13 @@ include 'includes/header.php';
                                 <?php echo htmlspecialchars(ucfirst($order['status'])); ?>
                             </span>
                             <strong>LKR <?php echo number_format((float) $order['total_price'], 2); ?></strong>
+                            <a href="order_receipt.php?order_id=<?php echo (int) $order['id']; ?>" class="btn-outline order-receipt-link">
+                                <i class="fas fa-receipt"></i> Receipt
+                            </a>
                         </div>
                     </div>
+
+                    <?php render_order_status_tracker($order['status']); ?>
 
                     <div class="order-items">
                         <?php foreach ($order['items'] as $item): ?>

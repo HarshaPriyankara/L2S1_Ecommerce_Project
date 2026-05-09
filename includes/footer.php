@@ -80,7 +80,62 @@
                 syncPriceSlider();
             }
 
-            function showCartToast() {
+            function setupCheckoutOptions() {
+                var checkoutForm = document.getElementById('checkout-form');
+                if (!checkoutForm) {
+                    return;
+                }
+
+                var itemsTotal = Number(checkoutForm.getAttribute('data-items-total')) || 0;
+                var deliveryLabel = document.getElementById('delivery-summary-label');
+                var deliveryFee = document.getElementById('delivery-summary-fee');
+                var paymentLabel = document.getElementById('payment-summary-label');
+                var checkoutTotal = document.getElementById('checkout-total');
+                var placeOrderButton = document.getElementById('place-order-button');
+
+                function money(value) {
+                    return 'LKR ' + Number(value).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                }
+
+                function syncCheckoutOptions() {
+                    var selectedDelivery = checkoutForm.querySelector('input[name="delivery_method"]:checked');
+                    var selectedPayment = checkoutForm.querySelector('input[name="payment_method"]:checked');
+                    var fee = selectedDelivery ? Number(selectedDelivery.getAttribute('data-fee')) || 0 : 0;
+                    var total = itemsTotal + fee;
+
+                    if (deliveryLabel && selectedDelivery) {
+                        deliveryLabel.textContent = selectedDelivery.getAttribute('data-label') || 'Delivery';
+                    }
+
+                    if (deliveryFee) {
+                        deliveryFee.textContent = fee > 0 ? money(fee) : 'Free';
+                    }
+
+                    if (paymentLabel && selectedPayment) {
+                        paymentLabel.textContent = selectedPayment.getAttribute('data-label') || 'Payment';
+                    }
+
+                    if (checkoutTotal) {
+                        checkoutTotal.textContent = money(total);
+                    }
+
+                    if (placeOrderButton) {
+                        var paymentValue = selectedPayment ? selectedPayment.value : 'card';
+                        placeOrderButton.textContent = (paymentValue === 'card' ? 'Pay ' : 'Place Order ') + money(total);
+                    }
+                }
+
+                checkoutForm.querySelectorAll('input[name="delivery_method"], input[name="payment_method"]').forEach(function (input) {
+                    input.addEventListener('change', syncCheckoutOptions);
+                });
+
+                syncCheckoutOptions();
+            }
+
+            function showCartToast(message, isError) {
                 var toast = document.querySelector('.cart-toast');
 
                 if (!toast) {
@@ -88,10 +143,13 @@
                     toast.className = 'cart-toast';
                     toast.setAttribute('role', 'status');
                     toast.setAttribute('aria-live', 'polite');
-                    toast.innerHTML = '<div><strong>Added to cart</strong><span>You can keep shopping or view your cart when ready.</span></div><a href="cart.php">View Cart</a>';
                     document.body.appendChild(toast);
                 }
 
+                toast.className = 'cart-toast' + (isError ? ' cart-toast-error' : '');
+                toast.innerHTML = isError
+                    ? '<div><strong>Cart not updated</strong><span>' + message + '</span></div>'
+                    : '<div><strong>Added to cart</strong><span>You can keep shopping or view your cart when ready.</span></div><a href="cart.php">View Cart</a>';
                 toast.classList.remove('is-hiding');
                 toast.classList.add('is-visible');
                 window.clearTimeout(cartToastTimer);
@@ -151,11 +209,12 @@
                         })
                         .then(function (data) {
                             if (!data.success) {
-                                throw new Error('Cart update failed');
+                                showCartToast(data.message || 'Cart update failed', true);
+                                return;
                             }
 
                             updateCartCount(parseInt(data.cart_count, 10) || 0);
-                            showCartToast();
+                            showCartToast('', false);
                         })
                         .catch(function () {
                             form.submit();
@@ -164,6 +223,7 @@
             });
 
             setupPriceSlider();
+            setupCheckoutOptions();
         });
     </script>
 </body>

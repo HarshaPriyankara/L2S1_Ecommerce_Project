@@ -1,9 +1,7 @@
 <?php
 include 'includes/db.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
 function append_query_param($url, $key, $value) {
     $parts = parse_url($url);
@@ -45,6 +43,17 @@ function cart_return_url() {
     return append_query_param($returnUrl, 'cart_added', '1');
 }
 
+function cart_return_url_with_error($message) {
+    $fallback = 'index.php#products';
+    $returnUrl = $_POST['redirect_to'] ?? $_SERVER['HTTP_REFERER'] ?? $fallback;
+
+    if (strpos($returnUrl, '://') !== false) {
+        $returnUrl = $fallback;
+    }
+
+    return append_query_param($returnUrl, 'cart_error', $message);
+}
+
 function cart_item_count() {
     $count = 0;
 
@@ -63,8 +72,42 @@ function is_ajax_request() {
 
 // Handle Add to Cart
 if (isset($_POST['add_to_cart'])) {
-    $product_id = (int) $_POST['product_id'];
+    ayurora_require_valid_csrf();
+
+    $product_id = ayurora_int_input($_POST['product_id'] ?? null);
     $quantity = 1; // Default quantity
+
+    if ($product_id === null) {
+        header('Location: ' . cart_return_url_with_error('Invalid product selected.'));
+        exit();
+    }
+
+    $stock_stmt = $conn->prepare('SELECT stock_quantity FROM products WHERE id = ? AND is_deleted = 0 LIMIT 1');
+    $stock_stmt->bind_param('i', $product_id);
+    $stock_stmt->execute();
+    $stock_result = $stock_stmt->get_result();
+    $product = $stock_result->fetch_assoc();
+    $stock_stmt->close();
+
+    $current_quantity = isset($_SESSION['cart'][$product_id]) ? (int) $_SESSION['cart'][$product_id] : 0;
+    $stock_quantity = $product ? (int) $product['stock_quantity'] : 0;
+
+    if (!$product || $stock_quantity <= 0 || $current_quantity + $quantity > $stock_quantity) {
+        $message = !$product || $stock_quantity <= 0 ? 'This product is out of stock.' : 'Only ' . $stock_quantity . ' item(s) are available.';
+
+        if (is_ajax_request()) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'cart_count' => cart_item_count(),
+                'message' => $message,
+            ]);
+            exit();
+        }
+
+        header('Location: ' . cart_return_url_with_error($message));
+        exit();
+    }
 
     if (!isset($_SESSION['cart'])) {
         $_SESSION['cart'] = [];
@@ -91,19 +134,42 @@ if (isset($_POST['add_to_cart'])) {
 }
 
 // Handle Remove from Cart
-if (isset($_GET['remove'])) {
-    $id_to_remove = $_GET['remove'];
-    unset($_SESSION['cart'][$id_to_remove]);
+if (isset($_POST['remove_from_cart'])) {
+    ayurora_require_valid_csrf();
+
+    $id_to_remove = ayurora_int_input($_POST['remove_from_cart'] ?? null);
+
+    if ($id_to_remove !== null) {
+        unset($_SESSION['cart'][$id_to_remove]);
+    }
+
     header('Location: cart.php');
     exit();
 }
 
 // Handle Update Quantity
-if (isset($_POST['update_cart'])) {
+if (isset($_POST['update_cart']) && isset($_POST['qty']) && is_array($_POST['qty'])) {
+    ayurora_require_valid_csrf();
+
     foreach ($_POST['qty'] as $pid => $qty) {
+        $pid = (int) $pid;
+        $qty = max(0, (int) $qty);
+
         if ($qty == 0) {
             unset($_SESSION['cart'][$pid]);
         } else {
+            $stock_stmt = $conn->prepare('SELECT stock_quantity FROM products WHERE id = ? AND is_deleted = 0 LIMIT 1');
+            $stock_stmt->bind_param('i', $pid);
+            $stock_stmt->execute();
+            $stock_row = $stock_stmt->get_result()->fetch_assoc();
+            $stock_stmt->close();
+
+            if (!$stock_row || (int) $stock_row['stock_quantity'] <= 0) {
+                unset($_SESSION['cart'][$pid]);
+                continue;
+            }
+
+            $qty = min($qty, (int) $stock_row['stock_quantity']);
             $_SESSION['cart'][$pid] = $qty;
         }
     }
@@ -121,6 +187,7 @@ include 'includes/header.php';
         <div class="alert alert-error">Your cart is empty. <a href="index.php">Go Shop!</a></div>
     <?php else: ?>
         <form action="cart.php" method="POST">
+            <?php echo ayurora_csrf_field(); ?>
             <div class="table-container">
                 <table class="cart-table">
                     <thead>
@@ -139,13 +206,32 @@ include 'includes/header.php';
                         $cart_items = $_SESSION['cart'];
                         
                         if (count($cart_items) > 0) {
-                            // Create a comma separated list of IDs for query
-                            $ids = implode(',', array_keys($cart_items));
-                            $sql = "SELECT * FROM products WHERE id IN ($ids)";
+                            $cart_items = array_filter(
+                                $cart_items,
+                                function ($quantity, $product_id) {
+                                    return ayurora_int_input($product_id) !== null && ayurora_int_input($quantity, 1, 100000) !== null;
+                                },
+                                ARRAY_FILTER_USE_BOTH
+                            );
+
+                            $ids = implode(',', array_map('intval', array_keys($cart_items)));
+
+                            if ($ids === '') {
+                                $_SESSION['cart'] = [];
+                                header('Location: cart.php');
+                                exit();
+                            }
+
+                            $sql = "SELECT * FROM products WHERE id IN ($ids) AND is_deleted = 0";
                             $result = $conn->query($sql);
+                            $has_stock_issue = false;
                             
                             while ($row = $result->fetch_assoc()) {
-                                $qty = $cart_items[$row['id']];
+                                $available_stock = (int) $row['stock_quantity'];
+                                $qty = min((int) $cart_items[$row['id']], max(0, $available_stock));
+                                if ($available_stock <= 0 || (int) $cart_items[$row['id']] > $available_stock) {
+                                    $has_stock_issue = true;
+                                }
                                 $subtotal = $row['price'] * $qty;
                                 $total_price += $subtotal;
                                 ?>
@@ -159,11 +245,17 @@ include 'includes/header.php';
                                     <td><?php echo substr(htmlspecialchars($row['description']), 0, 50) . '...'; ?></td>
                                     <td>LKR <?php echo number_format($row['price'], 2); ?></td>
                                     <td>
-                                        <input type="number" name="qty[<?php echo $row['id']; ?>]" value="<?php echo $qty; ?>" min="1" style="width: 60px; padding: 5px;">
+                                        <?php if ($available_stock <= 0): ?>
+                                            <input type="hidden" name="qty[<?php echo $row['id']; ?>]" value="0">
+                                        <?php endif; ?>
+                                        <input type="number" name="qty[<?php echo $row['id']; ?>]" value="<?php echo $qty; ?>" min="1" max="<?php echo max(1, $available_stock); ?>" style="width: 60px; padding: 5px;" <?php echo $available_stock <= 0 ? 'disabled' : ''; ?>>
+                                        <span class="stock-note"><?php echo $available_stock > 0 ? $available_stock . ' available' : 'Out of stock'; ?></span>
                                     </td>
                                     <td>LKR <?php echo number_format($subtotal, 2); ?></td>
                                     <td>
-                                        <a href="cart.php?remove=<?php echo $row['id']; ?>" class="btn-outline" style="border-color: var(--danger); color: var(--danger); padding: 0.3rem 0.8rem; border-radius: 5px;">Remove</a>
+                                        <button type="submit" name="remove_from_cart" value="<?php echo (int) $row['id']; ?>" class="btn-outline" style="border-color: var(--danger); color: var(--danger); padding: 0.3rem 0.8rem; border-radius: 5px;">
+                                            Remove
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php
@@ -178,10 +270,18 @@ include 'includes/header.php';
                 Total: LKR <?php echo number_format($total_price, 2); ?>
             </div>
 
+            <?php if (!empty($has_stock_issue)): ?>
+                <div class="alert alert-error">Some cart quantities exceed available stock. Please update your cart before checkout.</div>
+            <?php endif; ?>
+
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <button type="submit" name="update_cart" class="btn btn-outline">Update Cart</button>
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="checkout.php" class="btn btn-primary">Proceed to Checkout</a>
+                    <?php if (empty($has_stock_issue)): ?>
+                        <a href="checkout.php" class="btn btn-primary">Proceed to Checkout</a>
+                    <?php else: ?>
+                        <button type="submit" name="update_cart" class="btn btn-primary">Update Before Checkout</button>
+                    <?php endif; ?>
                 <?php else: ?>
                     <a href="login.php" class="btn btn-primary">Login to Checkout</a>
                 <?php endif; ?>

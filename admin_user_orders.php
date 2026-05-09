@@ -4,12 +4,24 @@ include 'includes/order_status.php';
 require_once 'includes/security.php';
 ayurora_require_admin();
 
-$allowed_statuses = ['pending', 'processing', 'completed', 'cancelled'];
-$message = '';
-$error = '';
+$user_id = ayurora_int_input($_GET['user_id'] ?? null);
 
-// Keep existing local databases compatible with the new processing status.
-$conn->query("ALTER TABLE orders MODIFY status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending'");
+if ($user_id === null) {
+    header('Location: admin_users.php');
+    exit();
+}
+
+$user_stmt = $conn->prepare('SELECT id, name, email, role, is_active, created_at FROM users WHERE id = ? LIMIT 1');
+$user_stmt->bind_param('i', $user_id);
+$user_stmt->execute();
+$user = $user_stmt->get_result()->fetch_assoc();
+$user_stmt->close();
+
+if (!$user) {
+    header('Location: admin_users.php');
+    exit();
+}
+
 $order_columns = [
     'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
     'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
@@ -26,29 +38,6 @@ foreach ($order_columns as $column => $alter_sql) {
     }
 }
 
-if (isset($_POST['update_status'])) {
-    ayurora_require_valid_csrf();
-
-    $order_id = ayurora_int_input($_POST['order_id'] ?? null);
-    $status = $_POST['status'] ?? '';
-
-    if ($order_id === null || !in_array($status, $allowed_statuses, true)) {
-        $error = 'Please choose a valid order status.';
-    } else {
-        $update_stmt = $conn->prepare('UPDATE orders SET status = ? WHERE id = ?');
-        $update_stmt->bind_param('si', $status, $order_id);
-
-        if ($update_stmt->execute()) {
-            $message = 'Order status updated successfully.';
-        } else {
-            $error = 'Could not update order status. Please try again.';
-        }
-
-        $update_stmt->close();
-    }
-}
-
-$orders = [];
 $delivery_labels = [
     'standard' => 'Standard Delivery',
     'express' => 'Express Delivery',
@@ -59,26 +48,32 @@ $payment_labels = [
     'cod' => 'Cash on Delivery',
     'bank_transfer' => 'Bank Transfer',
 ];
-$order_sql = "
-    SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.delivery_method, o.delivery_fee, o.payment_method, o.created_at, u.name AS customer_name, u.email AS customer_email
-    FROM orders o
-    INNER JOIN users u ON o.user_id = u.id
-    ORDER BY o.created_at DESC, o.id DESC
-";
-$order_result = $conn->query($order_sql);
+
+$orders = [];
+$order_stmt = $conn->prepare(
+    'SELECT id, total_price, status, shipping_address, phone, delivery_notes, delivery_method, delivery_fee, payment_method, created_at
+     FROM orders
+     WHERE user_id = ?
+     ORDER BY created_at DESC, id DESC'
+);
+$order_stmt->bind_param('i', $user_id);
+$order_stmt->execute();
+$order_result = $order_stmt->get_result();
 
 while ($order = $order_result->fetch_assoc()) {
     $order['items'] = [];
     $orders[(int) $order['id']] = $order;
 }
 
+$order_stmt->close();
+
 if (!empty($orders)) {
     $item_stmt = $conn->prepare(
-        "SELECT oi.quantity, oi.price, p.name, p.image
+        'SELECT oi.quantity, oi.price, p.name, p.image
          FROM order_items oi
          LEFT JOIN products p ON oi.product_id = p.id
          WHERE oi.order_id = ?
-         ORDER BY oi.id ASC"
+         ORDER BY oi.id ASC'
     );
 
     foreach (array_keys($orders) as $order_id) {
@@ -97,42 +92,35 @@ if (!empty($orders)) {
 include 'includes/header.php';
 ?>
 
-<div class="admin-orders-page">
+<div class="order-history-page">
     <div class="order-history-header">
         <div>
-            <span class="eyebrow">Admin</span>
-            <h2 class="section-title">Order Management</h2>
+            <span class="eyebrow">Admin user orders</span>
+            <h2 class="section-title"><?php echo htmlspecialchars($user['name']); ?></h2>
+            <p class="admin-user-detail-line">
+                <?php echo htmlspecialchars($user['email']); ?> &middot;
+                <?php echo htmlspecialchars(ucfirst($user['role'])); ?> &middot;
+                <?php echo (int) $user['is_active'] === 1 ? 'Active' : 'Inactive'; ?>
+            </p>
         </div>
-        <a href="admin.php" class="btn btn-outline">Product Dashboard</a>
+        <a href="admin_users.php" class="btn btn-outline">Back to Users</a>
     </div>
-
-    <?php if ($message): ?>
-        <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
-    <?php endif; ?>
-
-    <?php if ($error): ?>
-        <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
-    <?php endif; ?>
 
     <?php if (empty($orders)): ?>
         <div class="empty-state">
-            <i class="fas fa-box-open"></i>
-            <h3>No customer orders yet</h3>
-            <p>New checkout orders will appear here for admin review.</p>
+            <i class="fas fa-receipt"></i>
+            <h3>No orders for this user</h3>
+            <p>This customer has not placed any orders yet.</p>
         </div>
     <?php else: ?>
         <div class="order-history-list">
             <?php foreach ($orders as $order): ?>
-                <article class="order-card admin-order-card">
+                <article class="order-card">
                     <div class="order-card-header">
                         <div>
                             <span class="order-number">Order #<?php echo (int) $order['id']; ?></span>
                             <span class="order-date">
                                 <?php echo date('F j, Y - g:i A', strtotime($order['created_at'])); ?>
-                            </span>
-                            <span class="customer-line">
-                                <?php echo htmlspecialchars($order['customer_name']); ?> &middot;
-                                <?php echo htmlspecialchars($order['customer_email']); ?>
                             </span>
                         </div>
                         <div class="order-card-summary">
@@ -184,20 +172,6 @@ include 'includes/header.php';
                             </div>
                         <?php endforeach; ?>
                     </div>
-
-                    <form method="POST" action="admin_orders.php" class="order-status-form">
-                        <?php echo ayurora_csrf_field(); ?>
-                        <input type="hidden" name="order_id" value="<?php echo (int) $order['id']; ?>">
-                        <label for="status-<?php echo (int) $order['id']; ?>">Update Status</label>
-                        <select id="status-<?php echo (int) $order['id']; ?>" name="status" class="form-control">
-                            <?php foreach ($allowed_statuses as $status): ?>
-                                <option value="<?php echo htmlspecialchars($status); ?>" <?php echo $order['status'] === $status ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars(ucfirst($status)); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit" name="update_status" class="btn btn-primary">Save</button>
-                    </form>
                 </article>
             <?php endforeach; ?>
         </div>

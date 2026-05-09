@@ -1,34 +1,46 @@
 <?php
 include 'includes/db.php';
-include 'includes/header.php';
+require_once 'includes/security.php';
+ayurora_start_secure_session();
 
-if (!isset($_GET['id'])) {
-    echo "<script>window.location.href='index.php';</script>";
+$product_id = ayurora_int_input($_GET['id'] ?? null);
+
+if ($product_id === null) {
+    header('Location: friendly_error.php?type=product');
     exit();
 }
 
-$product_id = $_GET['id'];
-$product_id = $_GET['id'];
-$sql = "SELECT * FROM products WHERE id = $product_id AND is_deleted = 0";
-$result = $conn->query($sql);
+$stmt = $conn->prepare('SELECT * FROM products WHERE id = ? AND is_deleted = 0 LIMIT 1');
+$stmt->bind_param('i', $product_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if ($result->num_rows == 0) {
-    echo "<div class='container'><p>Product not found.</p></div>";
-    include 'includes/footer.php';
+    header('Location: friendly_error.php?type=product');
     exit();
 }
 
 $product = $result->fetch_assoc();
+$stmt->close();
+$stock_quantity = (int) ($product['stock_quantity'] ?? 0);
+$in_stock = $stock_quantity > 0;
 
 // Calculate Average Rating
-$rating_sql = "SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = $product_id";
-$rating_result = $conn->query($rating_sql);
+$rating_stmt = $conn->prepare('SELECT AVG(rating) as avg_rating FROM reviews WHERE product_id = ?');
+$rating_stmt->bind_param('i', $product_id);
+$rating_stmt->execute();
+$rating_result = $rating_stmt->get_result();
 $rating_row = $rating_result->fetch_assoc();
 $avg_rating = round($rating_row['avg_rating'], 1);
+$rating_stmt->close();
 
 // Fetch Reviews
-$reviews_sql = "SELECT r.*, u.name as user_name FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = $product_id ORDER BY r.created_at DESC";
-$reviews_result = $conn->query($reviews_sql);
+$reviews_stmt = $conn->prepare('SELECT r.*, u.name as user_name FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC');
+$reviews_stmt->bind_param('i', $product_id);
+$reviews_stmt->execute();
+$reviews_result = $reviews_stmt->get_result();
+
+include 'includes/header.php';
 ?>
 
 <div class="container">
@@ -59,20 +71,34 @@ $reviews_result = $conn->query($reviews_sql);
             </div>
 
             <p style="font-size: 1.25rem; font-weight: bold; color: var(--primary-color); margin-bottom: 1rem;">LKR <?php echo number_format($product['price'], 2); ?></p>
+            <span class="stock-badge <?php echo $in_stock ? 'in-stock' : 'out-stock'; ?>">
+                <?php echo $in_stock ? 'In stock' : 'Out of stock'; ?>
+            </span>
+            <span class="stock-note">
+                <?php echo $in_stock ? $stock_quantity . ' available for delivery' : 'This product is currently unavailable'; ?>
+            </span>
             
             <p style="margin-bottom: 2rem; line-height: 1.6;"><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
             
             <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
-                <form action="cart.php" method="POST" style="flex: 1;">
-                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                    <input type="hidden" name="redirect_to" value="product_details.php?id=<?php echo $product['id']; ?>">
-                    <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-cart-plus"></i> Add to Cart
+                <?php if ($in_stock): ?>
+                    <form action="cart.php" method="POST" style="flex: 1;">
+                        <?php echo ayurora_csrf_field(); ?>
+                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                        <input type="hidden" name="redirect_to" value="product_details.php?id=<?php echo $product['id']; ?>">
+                        <button type="submit" name="add_to_cart" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <button type="button" class="btn btn-disabled" style="flex: 1;" disabled>
+                        <i class="fas fa-ban"></i> Out of Stock
                     </button>
-                </form>
+                <?php endif; ?>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <form action="add_to_wishlist.php" method="POST">
+                        <?php echo ayurora_csrf_field(); ?>
                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                         <button type="submit" name="add_to_wishlist" class="btn btn-outline" style="border-color: #e74c3c; color: #e74c3c;">
                             <i class="fas fa-heart"></i> Wishlist
@@ -99,6 +125,7 @@ $reviews_result = $conn->query($reviews_sql);
                     <div class="review-form">
                         <h3>Share Your Experience</h3>
                         <form action="submit_review.php" method="POST">
+                            <?php echo ayurora_csrf_field(); ?>
                             <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                             
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Your Rating</label>

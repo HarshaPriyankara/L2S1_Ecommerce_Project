@@ -1,7 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/security.php';
+ayurora_start_secure_session();
 
 // Calculate cart count
 $cart_count = 0;
@@ -28,6 +27,11 @@ if (isset($_SESSION['cart'])) {
                 <img src="assets/images/ayurora-logo-small.png" alt="AYURORA logo" class="brand-logo" width="24" height="24">
                 <span class="brand-name">AYURORA</span>
             </a>
+            <input type="checkbox" id="nav-menu-toggle" class="nav-menu-checkbox" aria-label="Toggle navigation menu">
+            <label for="nav-menu-toggle" class="nav-menu-toggle">
+                <i class="fas fa-bars"></i>
+                <span class="sr-only">Open navigation menu</span>
+            </label>
             <form class="nav-search" method="GET" action="index.php#products">
                 <label class="sr-only" for="nav-search-input">Search products</label>
                 <i class="fas fa-search"></i>
@@ -40,9 +44,22 @@ if (isset($_SESSION['cart'])) {
                 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if ($_SESSION['role'] === 'admin'): ?>
-                        <li><a href="add_product.php">Add Product</a></li>
-                        <li><a href="admin.php">Dashboard</a></li>
-                        <li><a href="admin_orders.php">Manage Orders</a></li>
+                        <li class="admin-menu-item">
+                            <details class="admin-menu">
+                                <summary>
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Admin</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </summary>
+                                <div class="admin-menu-panel">
+                                    <a href="admin.php"><i class="fas fa-gauge-high"></i> Dashboard</a>
+                                    <a href="add_product.php"><i class="fas fa-plus"></i> Add Product</a>
+                                    <a href="admin_orders.php"><i class="fas fa-box"></i> Manage Orders</a>
+                                    <a href="admin_users.php"><i class="fas fa-users"></i> Manage Users</a>
+                                    <a href="admin_reviews.php"><i class="fas fa-star-half-stroke"></i> Manage Reviews</a>
+                                </div>
+                            </details>
+                        </li>
                     <?php endif; ?>
                     <li class="nav-group account-actions">
                         <a href="profile.php">Profile</a>
@@ -78,5 +95,13 @@ if (isset($_SESSION['cart'])) {
                     <span>You can keep shopping or view your cart when ready.</span>
                 </div>
                 <a href="cart.php">View Cart</a>
+            </div>
+        <?php endif; ?>
+        <?php if (!empty($_GET['cart_error'])): ?>
+            <div class="cart-toast cart-toast-error" role="status" aria-live="polite">
+                <div>
+                    <strong>Cart not updated</strong>
+                    <span><?php echo htmlspecialchars($_GET['cart_error']); ?></span>
+                </div>
             </div>
         <?php endif; ?>
