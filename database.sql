@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS orders (
     delivery_method VARCHAR(50) NULL,
     delivery_fee DECIMAL(10, 2) NOT NULL DEFAULT 0,
     payment_method VARCHAR(50) NULL,
+    payment_reference VARCHAR(120) NULL,
+    payment_status VARCHAR(30) NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

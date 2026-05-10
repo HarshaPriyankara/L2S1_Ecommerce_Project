@@ -1,7 +1,7 @@
 <?php
 include 'includes/db.php';
 include 'includes/order_status.php';
-require_once 'includes/security.php';
+require_once 'includes/checkout_helpers.php';
 ayurora_require_admin();
 
 $user_id = ayurora_int_input($_GET['user_id'] ?? null);
@@ -22,21 +22,7 @@ if (!$user) {
     exit();
 }
 
-$order_columns = [
-    'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
-    'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
-    'delivery_notes' => "ALTER TABLE orders ADD COLUMN delivery_notes TEXT NULL AFTER phone",
-    'delivery_method' => "ALTER TABLE orders ADD COLUMN delivery_method VARCHAR(50) NULL AFTER delivery_notes",
-    'delivery_fee' => "ALTER TABLE orders ADD COLUMN delivery_fee DECIMAL(10, 2) NOT NULL DEFAULT 0 AFTER delivery_method",
-    'payment_method' => "ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) NULL AFTER delivery_fee",
-];
-
-foreach ($order_columns as $column => $alter_sql) {
-    $column_check = $conn->query("SHOW COLUMNS FROM orders LIKE '$column'");
-    if ($column_check && $column_check->num_rows === 0) {
-        $conn->query($alter_sql);
-    }
-}
+ayurora_ensure_order_columns($conn);
 
 $delivery_labels = [
     'standard' => 'Standard Delivery',
@@ -51,7 +37,7 @@ $payment_labels = [
 
 $orders = [];
 $order_stmt = $conn->prepare(
-    'SELECT id, total_price, status, shipping_address, phone, delivery_notes, delivery_method, delivery_fee, payment_method, created_at
+    'SELECT id, total_price, status, shipping_address, phone, delivery_notes, delivery_method, delivery_fee, payment_method, payment_reference, payment_status, created_at
      FROM orders
      WHERE user_id = ?
      ORDER BY created_at DESC, id DESC'
@@ -152,7 +138,11 @@ include 'includes/header.php';
                         </div>
                         <div>
                             <span>Payment Method</span>
-                            <strong><?php echo htmlspecialchars($payment_labels[$order['payment_method'] ?? ''] ?? 'Not provided'); ?></strong>
+                            <strong><?php echo htmlspecialchars($payment_labels[$order['payment_method'] ?? ''] ?? 'Not provided'); ?><br><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $order['payment_status'] ?? 'pending'))); ?></strong>
+                        </div>
+                        <div>
+                            <span>Payment Reference</span>
+                            <strong><?php echo htmlspecialchars($order['payment_reference'] ?: 'Not provided'); ?></strong>
                         </div>
                     </div>
 

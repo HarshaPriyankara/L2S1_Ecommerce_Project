@@ -1680,6 +1680,95 @@ footer .brand-name {
     gap: 0.75rem;
 }
 
+.checkout-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 350px;
+    gap: 2rem;
+    align-items: start;
+}
+
+.checkout-panel,
+.checkout-summary {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.checkout-panel h3,
+.checkout-summary h3 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-dark);
+}
+
+.checkout-summary {
+    position: sticky;
+    top: 110px;
+}
+
+.checkout-summary-items {
+    margin-bottom: 1rem;
+}
+
+.checkout-summary-row,
+.checkout-summary-meta div,
+.checkout-total-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.checkout-summary-row {
+    margin-bottom: 0.5rem;
+}
+
+.checkout-summary hr {
+    margin: 1rem 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+.checkout-summary-meta {
+    display: grid;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.checkout-total-row {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.checkout-main-button,
+.checkout-secondary-button {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.checkout-progress {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.checkout-progress span {
+    padding: 0.65rem 0.45rem;
+    border-radius: 999px;
+    background: #eef3ef;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.checkout-progress .is-active {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
 .checkout-option {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -1717,6 +1806,79 @@ footer .brand-name {
     font-size: 0.85rem;
     font-style: normal;
     font-weight: 800;
+}
+
+.payment-layout .checkout-panel {
+    max-width: 760px;
+}
+
+.payment-method-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    border: 1px solid #e0e8e2;
+    border-radius: var(--radius);
+    background: #fbfcfb;
+}
+
+.payment-method-header > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.payment-method-header h3 {
+    margin-bottom: 0.25rem;
+}
+
+.payment-method-header p {
+    margin: 0;
+    color: var(--text-light);
+}
+
+.payment-field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.payment-info-box {
+    display: grid;
+    gap: 0.55rem;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    border-radius: var(--radius);
+    background: var(--primary-light);
+}
+
+.payment-info-box p {
+    margin: 0 0 0.5rem;
+    color: var(--text-color);
+}
+
+.payment-bank-box {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.payment-bank-box span {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.payment-bank-box strong {
+    color: var(--primary-dark);
 }
 
 .shipping-summary-grid div,
@@ -2526,6 +2688,14 @@ th {
 }
 
 @media (max-width: 1080px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-summary {
+        position: static;
+    }
+
     .admin-summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -2536,6 +2706,23 @@ th {
 }
 
 @media (max-width: 620px) {
+    .checkout-panel,
+    .checkout-summary {
+        padding: 1.25rem;
+    }
+
+    .checkout-progress {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .payment-method-header {
+        align-items: flex-start;
+    }
+
+    .payment-field-row {
+        grid-template-columns: 1fr;
+    }
+
     .admin-summary-grid,
     .admin-summary-revenue {
         grid-template-columns: 1fr;

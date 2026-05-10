@@ -123,8 +123,7 @@
                     }
 
                     if (placeOrderButton) {
-                        var paymentValue = selectedPayment ? selectedPayment.value : 'card';
-                        placeOrderButton.textContent = (paymentValue === 'card' ? 'Pay ' : 'Place Order ') + money(total);
+                        placeOrderButton.textContent = 'Continue to Payment - ' + money(total);
                     }
                 }
 

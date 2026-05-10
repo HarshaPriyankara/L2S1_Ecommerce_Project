@@ -1,6 +1,6 @@
 <?php
 include 'includes/db.php';
-require_once 'includes/security.php';
+require_once 'includes/checkout_helpers.php';
 ayurora_require_login();
 
 $order_id = ayurora_int_input($_GET['order_id'] ?? null);
@@ -12,25 +12,11 @@ if ($order_id === null) {
     exit();
 }
 
-$order_columns = [
-    'shipping_address' => "ALTER TABLE orders ADD COLUMN shipping_address TEXT NULL AFTER status",
-    'phone' => "ALTER TABLE orders ADD COLUMN phone VARCHAR(30) NULL AFTER shipping_address",
-    'delivery_notes' => "ALTER TABLE orders ADD COLUMN delivery_notes TEXT NULL AFTER phone",
-    'delivery_method' => "ALTER TABLE orders ADD COLUMN delivery_method VARCHAR(50) NULL AFTER delivery_notes",
-    'delivery_fee' => "ALTER TABLE orders ADD COLUMN delivery_fee DECIMAL(10, 2) NOT NULL DEFAULT 0 AFTER delivery_method",
-    'payment_method' => "ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) NULL AFTER delivery_fee",
-];
-
-foreach ($order_columns as $column => $alter_sql) {
-    $column_check = $conn->query("SHOW COLUMNS FROM orders LIKE '$column'");
-    if ($column_check && $column_check->num_rows === 0) {
-        $conn->query($alter_sql);
-    }
-}
+ayurora_ensure_order_columns($conn);
 
 if ($is_admin) {
     $order_stmt = $conn->prepare(
-        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.delivery_method, o.delivery_fee, o.payment_method, o.created_at, u.name AS customer_name, u.email AS customer_email
+        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.delivery_method, o.delivery_fee, o.payment_method, o.payment_reference, o.payment_status, o.created_at, u.name AS customer_name, u.email AS customer_email
          FROM orders o
          INNER JOIN users u ON o.user_id = u.id
          WHERE o.id = ?
@@ -39,7 +25,7 @@ if ($is_admin) {
     $order_stmt->bind_param('i', $order_id);
 } else {
     $order_stmt = $conn->prepare(
-        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.delivery_method, o.delivery_fee, o.payment_method, o.created_at, u.name AS customer_name, u.email AS customer_email
+        'SELECT o.id, o.total_price, o.status, o.shipping_address, o.phone, o.delivery_notes, o.delivery_method, o.delivery_fee, o.payment_method, o.payment_reference, o.payment_status, o.created_at, u.name AS customer_name, u.email AS customer_email
          FROM orders o
          INNER JOIN users u ON o.user_id = u.id
          WHERE o.id = ? AND o.user_id = ?
@@ -132,6 +118,8 @@ include 'includes/header.php';
             <div>
                 <span>Payment</span>
                 <strong><?php echo htmlspecialchars($payment_label); ?></strong>
+                <small><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $order['payment_status'] ?? 'pending'))); ?></small>
+                <small><?php echo htmlspecialchars($order['payment_reference'] ?: 'No reference'); ?></small>
             </div>
         </div>
 
