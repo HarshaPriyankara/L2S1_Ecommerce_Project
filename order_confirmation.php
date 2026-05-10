@@ -87,6 +87,9 @@ include 'includes/header.php';
         <span class="eyebrow">Order confirmed</span>
         <h2 class="section-title">Thank you for shopping with AYURORA.</h2>
         <p>Your order has been placed successfully. You can track it anytime from your order history.</p>
+        <?php if (($order['payment_method'] ?? '') === 'bank_transfer'): ?>
+            <p class="payment-followup-note">After verifying your bank transfer payment, we will update your order status.</p>
+        <?php endif; ?>
 
         <div class="confirmation-meta">
             <div>

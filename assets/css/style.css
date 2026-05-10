@@ -1654,6 +1654,17 @@ footer .brand-name {
     flex-wrap: wrap;
 }
 
+.payment-followup-note {
+    display: inline-block;
+    margin: 0.75rem auto 1.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(183, 135, 39, 0.22);
+    border-radius: 999px;
+    background: #fff8e8;
+    color: #75520b;
+    font-weight: 700;
+}
+
 .shipping-summary {
     margin-bottom: 1.5rem;
     padding: 1.6rem;
