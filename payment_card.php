@@ -38,13 +38,15 @@ if (isset($_POST['pay_card'])) {
     } elseif (!preg_match('/^[0-9]{3,4}$/', $cvv)) {
         $message = 'Please enter a valid CVV.';
     } else {
-        $reference = 'CARD-' . date('YmdHis') . '-' . substr($card_number, -4);
-        $order_id = ayurora_create_order_from_checkout($conn, 'paid', 'processing', $reference, $message);
+        $_SESSION['card_payment_verification'] = [
+            'otp' => '111111',
+            'reference' => 'CARD-' . date('YmdHis') . '-' . substr($card_number, -4),
+            'last_four' => substr($card_number, -4),
+            'created_at' => time(),
+        ];
 
-        if ($order_id) {
-            header('Location: order_confirmation.php?order_id=' . $order_id);
-            exit();
-        }
+        header('Location: payment_card_otp.php');
+        exit();
     }
 }
 
