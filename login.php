@@ -30,13 +30,19 @@ if (isset($_POST['login'])) {
         $error = 'Please enter a valid email and password.';
     } else {
         $stmt = $conn->prepare('SELECT id, name, email, password, role, is_active FROM users WHERE email = ? LIMIT 1');
-        $stmt->bind_param('s', $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        $stmt->close();
+        
+        $user = null;
+        if ($stmt) {
+            $stmt->bind_param('s', $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            $stmt->close();
+        }
 
-        if ($user && isset($user['is_active']) && (int) $user['is_active'] !== 1) {
+        if (!$stmt) {
+            $error = 'Database query failed. Please contact the administrator.';
+        } elseif ($user && isset($user['is_active']) && (int) $user['is_active'] !== 1) {
             $error = 'This account is inactive. Please contact admin.';
         } elseif ($user && password_verify($password, $user['password'])) {
             unset($_SESSION['login_attempts'][$attempt_key]);

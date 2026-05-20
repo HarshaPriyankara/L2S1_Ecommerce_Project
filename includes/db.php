@@ -63,6 +63,11 @@ if ($stockColumnCheck && $stockColumnCheck->num_rows === 0) {
     $conn->query('ALTER TABLE products ADD COLUMN stock_quantity INT NOT NULL DEFAULT 25 AFTER price');
 }
 
+$isActiveColumnCheck = $conn->query("SHOW COLUMNS FROM users LIKE 'is_active'");
+if ($isActiveColumnCheck && $isActiveColumnCheck->num_rows === 0) {
+    $conn->query('ALTER TABLE users ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1 AFTER role');
+}
+
 function product_image_path($filename) {
     $filename = basename((string) $filename);
     $path = __DIR__ . '/../uploads/' . $filename;
